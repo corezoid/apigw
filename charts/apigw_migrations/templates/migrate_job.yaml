@@ -1,0 +1,7 @@
+{{- if .Values.global.apigw_migrations.config }}
+{{- if .Values.global.apigw_migrations.config.migrate }}
+{{- if .Values.global.apigw_migrations.config.migrate.host }}
+{{- include "cz.migrations.migrate_v1" . | indent 0 }}
+{{- end }}
+{{- end }}
+{{- end }}

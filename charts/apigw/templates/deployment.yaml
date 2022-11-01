@@ -1,0 +1,132 @@
+{{- $d := .Values.helm }}
+{{- $rls := .Values.global.release }}
+{{- $tplVals := .Values }}
+{{- $_ := set $tplVals "Template" .Template }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-apigw-deployment
+  labels:
+    release: {{ .Release.Name | quote }}
+    app: {{ .Values.helm.app | quote }}
+    tier: {{ .Values.helm.tier | quote }}
+spec:
+  selector:
+    matchLabels:
+      release: {{ .Release.Name | quote }}
+      app: {{ .Values.helm.app | quote }}
+      tier: {{ .Values.helm.tier | quote }}
+  strategy:
+    type: 'RollingUpdate'
+  replicas: {{ $d.min_replicas }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        prometheus.io/path: /metrics
+        prometheus.io/port: "9100"
+        prometheus.io/scrape: "true"
+      labels:
+        release: {{ .Release.Name | quote }}
+        app: {{ .Values.helm.app | quote }}
+        tier: {{ .Values.helm.tier | quote }}
+    spec:
+      # equal to ProxyServer.ReadTimeoutSec+ProxyServer.MaxCallbackWaitSec+20
+      terminationGracePeriodSeconds: 80
+      imagePullSecrets:
+        - name: {{ .Values.global.imagePullSecrets.name }}
+      containers:
+        - name: main
+          imagePullPolicy: {{ $d.image_pull_policy | quote }}
+          image: {{ print .Values.image ":" $rls.require.apigw }}
+          command: ["/apigw/apigw"]
+          args: ["--config", "/apigw/apigw.json"]
+          env:
+            - name: APIGW_POSTGRESQL_HOST
+              value: {{ .Values.global.release.postgresql_credentials.apigw.host | quote }}
+            - name: APIGW_POSTGRESQL_PORT
+              value: {{ .Values.global.release.postgresql_credentials.apigw.port | quote }}
+            - name: APIGW_POSTGRESQL_USERNAME
+              value: {{ .Values.global.release.postgresql_credentials.apigw.username | quote }}
+            - name: APIGW_POSTGRESQL_PASSWORD
+              value: {{ .Values.global.release.postgresql_credentials.apigw.password | quote }}
+            {{- if.Values.config.gopsagent }}
+            {{- if.Values.config.gopsagent.enabled }}
+            - name: GOPS_CONFIG_DIR
+              value: /tmp/gops
+            {{- end }}
+            {{- end }}
+            - name: INTERNAL_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+          {{- if .Values.helm.resources }}
+          {{- include "cz.kubernetes.container.resources.v1" .Values.helm.resources | indent 10 }}
+          {{- else }}
+          resources:
+            limits:
+              cpu: 200m
+              memory: 400Mi
+            requests:
+              cpu: 200m
+              memory: 400Mi
+          {{- end }}
+          ports:
+            - containerPort: {{ .Values.config.callback_server.listen_port }}
+            - containerPort: {{ .Values.config.api_server.listen_port }}
+            - containerPort: {{ .Values.config.proxy_server.listen_port }}
+            - containerPort: {{ .Values.config.health_server.listen_port }}
+            - containerPort: {{ .Values.config.prometheus.metrics_port }}
+          volumeMounts:
+            - name: config
+              mountPath: /apigw/apigw.json
+              subPath: {{ .Values.config_file }}
+            {{- if.Values.config.gopsagent }}
+            {{- if.Values.config.gopsagent.enabled }}
+            - name: gops
+              mountPath: /tmp/gops
+            {{- end }}
+            {{- end }}
+          securityContext:
+            runAsUser: 501
+            runAsGroup: 501
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            privileged: false
+            capabilities:
+              drop:
+                - NET_ADMIN
+                - SYS_ADMIN
+                - MAC_ADMIN
+                - SETUID
+                - SETGID
+                - FOWNER
+                - CHOWN
+                - MKNOD
+          readinessProbe:
+            httpGet:
+              port: {{ .Values.config.proxy_server.listen_port}}
+              path: {{ .Values.config.proxy_server.ready_path}}
+            timeoutSeconds: 5
+            failureThreshold: 3
+            periodSeconds: 5
+        {{- if $d.debug_container }}
+        - name: 'debug'
+          image: 'docker-hub.middleware.biz/hub.docker.com/library/alpine:3.13'
+          command: [ "/bin/sh" ]
+          args: [ "-c", "while true; do sleep 5;done" ]
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+          volumeMounts:
+            - name: gops
+              mountPath: /tmp/gops
+        {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ .Release.Name }}-apigw-config
+        - name: gops
+          emptyDir: {}

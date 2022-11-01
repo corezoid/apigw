@@ -1,0 +1,1 @@
+Main page: https://{{ .Values.global.release.frontend.host }}

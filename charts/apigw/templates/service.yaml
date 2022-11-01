@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: apigw-service
+  labels:
+    release: {{ .Release.Name | quote }}
+    app: {{ .Values.helm.app | quote }}
+    tier: {{ .Values.helm.tier | quote }}
+spec:
+  type: {{ .Values.helm.service_type | quote }}
+  selector:
+    release: {{ .Release.Name | quote }}
+    app: {{ .Values.helm.app | quote }}
+    tier: {{ .Values.helm.tier | quote }}
+  ports:
+  - name: callback
+    protocol: TCP
+    port: {{ .Values.config.callback_server.listen_port }}
+    targetPort: 8070
+  - name: api
+    protocol: TCP
+    port: {{ .Values.config.api_server.listen_port }}
+    targetPort: 8080
+  - name: proxy
+    protocol: TCP
+    port: {{ .Values.config.proxy_server.listen_port }}
+    targetPort: 8090
+  - name: health-server
+    protocol: TCP
+    port: {{ .Values.config.health_server.listen_port }}
+    targetPort: 8060
+  - name: prometheus
+    protocol: TCP
+    port: {{ .Values.config.prometheus.metrics_port }}
+    targetPort: 9100

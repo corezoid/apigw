@@ -1,0 +1,17 @@
+component_name: apigw
+
+require: {}
+
+include:
+  kube: '2.0.2' # 2.0-dev
+
+helm:
+  enabled: true
+  app: apigw
+  tier: apigw
+  chart:
+    version: "1.0.0"
+    description: "The API Gateway service."
+
+config_file: apigw.json
+image: "docker-hub.middleware.biz/apigw/apigw"

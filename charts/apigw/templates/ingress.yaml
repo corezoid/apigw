@@ -1,0 +1,7 @@
+{{- if .Values.helm }}
+{{- if .Values.helm.ingress }}
+{{- if .Values.helm.ingress.enabled }}
+{{ include "cz.kubernetes.ingress.v1" .Values.helm.ingress | indent 0 }}
+{{- end }}
+{{- end }}
+{{- end }}
