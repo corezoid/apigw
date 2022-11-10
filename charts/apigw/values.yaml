@@ -14,4 +14,4 @@ helm:
     description: "The API Gateway service."
 
 config_file: apigw.json
-image: "docker-hub.middleware.biz/apigw/apigw"
+image: "docker-hub.middleware.biz/public/apigw/apigw"

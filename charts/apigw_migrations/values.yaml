@@ -15,4 +15,4 @@ helm:
     description: The component provides apigw migrations
 
 dir: "/migrations/migrations"
-image: "docker-hub.middleware.biz/apigw/apigw-migrations"
+image: "docker-hub.middleware.biz/public/apigw/apigw-migrations"
