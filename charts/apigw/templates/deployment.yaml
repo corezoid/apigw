@@ -33,11 +33,13 @@ spec:
     spec:
       # equal to ProxyServer.ReadTimeoutSec+ProxyServer.MaxCallbackWaitSec+20
       terminationGracePeriodSeconds: 80
+{{- if .Values.global.imagePullSecrets.name }}
       imagePullSecrets:
         - name: {{ .Values.global.imagePullSecrets.name }}
+{{- end }}
       containers:
         - name: main
-          imagePullPolicy: {{ $d.image_pull_policy | quote }}
+          imagePullPolicy: {{ .Values.global.pullPolicy | quote }}
           image: {{ print .Values.image ":" $rls.require.apigw }}
           command: ["/apigw/apigw"]
           args: ["--config", "/apigw/apigw.json"]

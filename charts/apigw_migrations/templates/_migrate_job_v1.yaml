@@ -31,8 +31,9 @@ spec:
       containers:
       - name: main
         image: {{ print .Values.image ":" $rls.require.apigw_migrations }}
+        imagePullPolicy: {{ .Values.global.pullPolicy | quote }}
         command: [ "cz" ]
-        args: 
+        args:
           - "ops"
           - "migrator"
           - "migrate"
