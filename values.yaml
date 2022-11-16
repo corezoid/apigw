@@ -3,6 +3,7 @@ global:
   product: "api-gw"
   # Type of repo with images on docker-hub.middleware.biz
   repotype: "public"
+  pullPolicy: Always
 
   db:
     # Current helm chart support only external DB.
@@ -64,7 +65,6 @@ global:
     frontend:
       image: 'docker-hub.middleware.biz/public/apigw/apigw-frontend'
       tag: "1.0.1"
-      pullPolicy: IfNotPresent
       port: 80
       host: "apigw.example.com"
       autoscaling:
