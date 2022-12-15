@@ -36,7 +36,7 @@ response
 	"owner_id":12345,
 	"name":"ApiGateway Prod",
 	"client_id":"SA_CLIENT_ID",
-	"redirect_uri":"https://admin.dev.corezoid.com",
+	"redirect_uri":"https://admin.corezoid.loc",
 	"client_secret":"SA_CLIENT_SECRET",
 	"create_time":1234567890,
 	"homepage":"https://apigw.example.com/",
