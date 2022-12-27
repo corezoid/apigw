@@ -13,5 +13,13 @@ helm:
     version: "1.0.1"
     description: "The API Gateway service."
 
+resources:
+  limits:
+    cpu: 200m
+    memory: 400Mi
+  requests:
+    cpu: 200m
+    memory: 400Mi
+
 config_file: apigw.json
 image: "docker-hub.middleware.biz/public/apigw/apigw"

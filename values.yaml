@@ -96,6 +96,13 @@ global:
     className:
 apigw:
   image: 'docker-hub.middleware.biz/public/apigw/apigw'
+  resources:
+    limits:
+      cpu: 200m
+      memory: 400Mi
+    requests:
+      cpu: 200m
+      memory: 400Mi
   config:
     callback_server:
       aes_key: '1975664b67ac0c9f793d594e5b0ea16d08a2a425b4554a603b42cea4a84a4997'
