@@ -72,7 +72,7 @@ spec:
               - FOWNER
               - CHOWN
               - MKNOD
-      {{- if $d.image_pull_secrets }}
+      {{- if .Values.global.imagePullSecrets.name }}
       imagePullSecrets:
         - name: {{ .Values.global.imagePullSecrets.name }}
       {{- end}}
