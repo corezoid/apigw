@@ -1,0 +1,122 @@
+{{- $d := .Values.helm }}
+{{- $tplVals := .Values }}
+{{- $_ := set $tplVals "Template" .Template }}
+{{- $cfg := .Values.global.apigw.apigw_app.config }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}-deployment
+  labels:
+    release: {{ .Release.Name | quote }}
+    app: {{ .Values.helm.app | quote }}
+    tier: {{ .Values.helm.tier | quote }}
+spec:
+  selector:
+    matchLabels:
+      release: {{ .Release.Name | quote }}
+      app: {{ .Values.helm.app | quote }}
+      tier: {{ .Values.helm.tier | quote }}
+  strategy:
+    type: {{ .Values.global.deploymentStrategy.type }}
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  replicas: {{ $d.min_replicas }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      labels:
+        release: {{ .Release.Name | quote }}
+        app: {{ .Values.helm.app | quote }}
+        tier: {{ .Values.helm.tier | quote }}
+    spec:
+      # equal to ProxyServer.ReadTimeoutSec+ProxyServer.MaxCallbackWaitSec+20
+      terminationGracePeriodSeconds: 80
+      {{- if not (eq .Values.global.repotype "public") }}
+      imagePullSecrets:
+        - name: {{ .Values.global.imagePullSecrets.name }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          imagePullPolicy: {{ include "apigw_app.imagePullPolicy" . | quote }}
+          image: {{ include "apigw_app.imageUrl" . | quote }}
+          command: ["/apigw/apigw"]
+          args: ["--config", "/apigw/apigw.json"]
+          env:
+            {{- include "apigw_app.container_envs_db" . | indent 12 }}
+            {{- include "apigw_app.container_envs_host" . | indent 12 }}
+            {{- if $cfg.gopsagent }}
+            {{- if $cfg.gopsagent.enabled }}
+            - name: GOPS_CONFIG_DIR
+              value: /tmp/gops
+            {{- end }}
+            {{- end }}
+            - name: INTERNAL_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+          {{- include "apigw_app.resources" . | indent 10 }}
+          ports:
+            - containerPort: {{ $cfg.callback_server.listen_port }}
+            - containerPort: {{ $cfg.api_server.listen_port }}
+            - containerPort: {{ $cfg.proxy_server.listen_port }}
+            - containerPort: {{ $cfg.health_server.listen_port }}
+            {{- if .Values.global.serviceMonitor }}
+            {{- if .Values.global.serviceMonitor.enabled }}
+            - containerPort: {{ $cfg.prometheus.metrics_port }}
+            {{- end }}
+            {{- end }}
+          volumeMounts:
+            - name: config
+              mountPath: /apigw/{{ .Values.config_file }}
+              subPath: {{ .Values.config_file }}
+            {{- if $cfg.gopsagent }}
+            {{- if $cfg.gopsagent.enabled }}
+            - name: gops
+              mountPath: /tmp/gops
+            {{- end }}
+            {{- end }}
+          securityContext:
+            runAsUser: 501
+            runAsGroup: 501
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            privileged: false
+            capabilities:
+              drop:
+                - NET_ADMIN
+                - SYS_ADMIN
+                - MAC_ADMIN
+                - SETUID
+                - SETGID
+                - FOWNER
+                - CHOWN
+                - MKNOD
+          readinessProbe:
+            httpGet:
+              port: {{ $cfg.proxy_server.listen_port}}
+              path: {{ $cfg.proxy_server.ready_path}}
+            timeoutSeconds: 5
+            failureThreshold: 3
+            periodSeconds: 5
+        {{- if $d.debug_container }}
+        - name: 'debug'
+          image: 'docker-hub.middleware.biz/hub.docker.com/library/alpine:3.13'
+          command: [ "/bin/sh" ]
+          args: [ "-c", "while true; do sleep 5;done" ]
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+          volumeMounts:
+            - name: gops
+              mountPath: /tmp/gops
+        {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ .Release.Name }}-apigw-config
+        - name: gops
+          emptyDir: {}

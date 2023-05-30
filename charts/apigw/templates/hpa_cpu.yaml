@@ -1,0 +1,15 @@
+{{- $d := .Values.global.apigw.apigw_app }}
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-autoscale
+  labels:
+{{- include "apigw.labels" . | nindent 4 }}
+spec:
+  minReplicas: {{ $d.minReplicas }}
+  maxReplicas: {{ $d.maxReplicas }}
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Release.Name }}-{{ .Chart.Name }}-deployment
+  targetCPUUtilizationPercentage: {{ $d.targetCPUUtilizationPercentage | default "60" }}

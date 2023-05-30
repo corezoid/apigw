@@ -1,0 +1,10 @@
+{{- $cfg := .Values.global.apigw.apigw_app.config }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-config
+  labels:
+{{- include "apigw.labels" . | nindent 4 }}
+data:
+  {{ .Values.config_file }}: |
+{{ $cfg | mustToPrettyJson | trim | indent 4 }}

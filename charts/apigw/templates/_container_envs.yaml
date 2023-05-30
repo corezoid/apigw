@@ -1,0 +1,49 @@
+{{- define "apigw_app.container_envs_db" }}
+{{- if .Values.global.db.secret.create }}
+{{- $secret_name := ( include "postgres.secretName" . ) }}
+- name: APIGW_POSTGRESQL_HOST
+  valueFrom:
+    secretKeyRef:
+      name: {{ $secret_name }}
+      key: dbhost
+- name: APIGW_POSTGRESQL_PORT
+  valueFrom:
+    secretKeyRef:
+      name: {{ $secret_name }}
+      key: dbport
+- name: APIGW_POSTGRESQL_USERNAME
+  valueFrom:
+    secretKeyRef:
+      name: {{ $secret_name }}
+      key: dbuser
+- name: APIGW_POSTGRESQL_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ $secret_name }}
+      key: dbpwd
+{{- else }}
+- name: APIGW_POSTGRESQL_HOST
+  value: {{ .Values.global.db.secret.data.dbhost | quote }}
+- name: APIGW_POSTGRESQL_PORT
+  value: {{ .Values.global.db.secret.data.dbport | quote }}
+- name: APIGW_POSTGRESQL_USERNAME
+  value: {{ .Values.global.db.secret.data.dbuser | quote }}
+- name: APIGW_POSTGRESQL_PASSWORD
+  value: {{ .Values.global.db.secret.data.dbpwd | quote }}
+{{- end }}
+{{- end }}
+
+{{- define "apigw_app.container_envs_host" }}
+- name: APIGW_CALLBACK_SERVER_HOST
+  value: {{ include "apigw.hosts.callback_server" . }}
+- name: APIGW_PROXY_SERVER_HOST
+  value: {{ include "apigw.hosts.proxy_server" . }}
+- name: APIGW_API_SERVER_HOST
+  value: {{ include "apigw.hosts.api_server" . }}
+- name: APIGW_FRONTEND_HOST
+  value: {{ include "apigw.hosts.frontend" . }}
+- name: APIGW_SA_HOST
+  value: {{ include "apigw.hosts.sa" . }}
+- name: APIGW_COREZOID_HOST
+  value: {{ include "apigw.hosts.corezoid" . }}
+{{- end }}

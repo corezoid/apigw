@@ -1,0 +1,137 @@
+global:
+
+  # second level domain only! / core domain (example: example.com)
+  domain: "example.com"
+  # subdomain / sitename - prod.example.com (example: prod), if no sub-domain, then set blank (subdomain: "")
+  subdomain: "prod"
+
+  imageRegistry: docker-hub.middleware.biz
+  imagePullPolicy: Always
+  repotype: public
+
+  # Enable or disable Service or Pod Monitor, if not set then use serviceMonitor.enabled: false
+  serviceMonitor:
+    enabled: false
+
+  deploymentStrategy:
+    type: RollingUpdate
+
+  product: "api-gw"
+
+  apigw:
+    apigw_app:
+      # Can set imagePullPolicy for application image only, or use from .global
+      # imagePullPolicy: IfNotPresent
+      minReplicas: 2
+      maxReplicas: 4
+      resources:
+        limits:
+          cpu: 500m
+          memory: 500Mi
+        requests:
+          cpu: 200m
+          memory: 200Mi
+      config:
+        callback_server:
+          aes_key: 'AES_KEY'
+          aes_nonce: 'AES_NONCE'
+          host: '${APIGW_CALLBACK_SERVER_HOST}'
+          port: 0
+          schema: 'https'
+          base_path: '/callback'
+          internal_host: '${INTERNAL_HOST}'
+          listen_host: '0.0.0.0'
+          listen_port: 8070
+          read_timeout_sec: 30
+        db:
+          dsn: 'postgres://${APIGW_POSTGRESQL_USERNAME}:${APIGW_POSTGRESQL_PASSWORD}@${APIGW_POSTGRESQL_HOST}:${APIGW_POSTGRESQL_PORT}/apigw?sslmode=disable&binary_parameters=yes'
+        single_account:
+          enabled: true
+          http_host: 'https://${APIGW_SA_HOST}'
+          # Single-account client id, check README.md file
+          client_id: 'SA_CLIENT_ID'
+          # Single-account client secret, check README.md file
+          client_secret: 'SA_CLIENT_SECRET'
+          redirect_http_host: 'https://${APIGW_FRONTEND_HOST}/'
+        api_server:
+          listen_host: '0.0.0.0'
+          listen_port: 8080
+          cors:
+            allowed_origins: ['*']
+        proxy_server:
+          listen_host: '0.0.0.0'
+          listen_port: 8090
+          host: '${APIGW_PROXY_SERVER_HOST}'
+          host_delimiter: '.'
+          ready_path: '/ready'
+          corezoid:
+            # Corezoid apikey login
+            admin_login: 777
+            # Corezoid apikey secret
+            admin_secret: 'NHpUvs1AbiP9GO0FKuxVL5fxzTgP5PFrwBw4Ndp4BaJL8ZT6FE'
+            http_host: 'https://${APIGW_COREZOID_HOST}'
+        health_server:
+          listen_host: '0.0.0.0'
+          listen_port: 8060
+        prometheus:
+          enabled: true
+          type: 'scrape'
+          metrics_host: '0.0.0.0'
+          metrics_port: 9100
+        metrics:
+          add_path_label: true
+          add_process_label: true
+          add_api_label: true
+
+      # Sub-domian for APIGW callback-server
+      callback_server_subDomain: "cb-apigw"
+      # Sub-domian for APIGW server-server, e.g. *.apigw.example.com
+      proxy_server_subDomain: "apigw"
+      # Sub-domian for APIGW api
+      api_server_subDomain: "api-apigw"
+      # Sub-domian for APIGW frontend
+      frontend_subDomain: "apigw"
+
+    apigw_frontend:
+      # Can set imagePullPolicy for frontend image only, or use from .global
+      # imagePullPolicy: IfNotPresent
+      autoscaling:
+        # true - will start minReplicas count of frontend pods
+        # false - will start single frontend pods
+        enabled: false
+        minReplicas: 2
+        maxReplicas: 10
+
+  sa:
+    # Sub-domian for Single-Account service
+    subDomain: "account"
+
+  db:
+    internal: false
+    secret:
+    # true - secret will be created automaticaly with provided values
+    # false - secret should be created manualy
+      name: "postgresql-secret"
+      create: true
+      data:
+        # PostgreSQL database address
+        dbhost: "DB_HOST"
+        # PostgreSQL database port
+        dbport: "5432"
+        # PostgreSQL database application username
+        dbuser: "apigw_user"
+        # PostgreSQL database application password
+        dbpwd: "APP_DB_PASSWORD"
+
+  ingress:
+    className:
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      # nginx.ingress.kubernetes.io/configuration-snippet: |
+      #   more_set_headers X-Content-Type-Options "nosniff" always;
+      #   more_set_headers X-Frame-Options "SAMEORIGIN" always;
+      #   add_header X-Content-Type-Options nosniff;
+      #   more_set_headers Referrer-Policy "no-referrer-when-downgrade" always;
+      #   more_set_headers "Content-Security-Policy: default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: INSERT_DOMIANS_HERE";
+  kube:
+    affinity: {}

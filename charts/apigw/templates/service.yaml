@@ -1,0 +1,32 @@
+{{- $cfg := .Values.global.apigw.apigw_app.config }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: apigw-service
+  labels:
+    release: {{ .Release.Name | quote }}
+    app: {{ .Values.helm.app | quote }}
+    tier: {{ .Values.helm.tier | quote }}
+spec:
+  type: {{ .Values.helm.service_type | quote }}
+  selector:
+    release: {{ .Release.Name | quote }}
+    app: {{ .Values.helm.app | quote }}
+    tier: {{ .Values.helm.tier | quote }}
+  ports:
+  - name: callback
+    protocol: TCP
+    port: {{ $cfg.callback_server.listen_port }}
+    targetPort: 8070
+  - name: api
+    protocol: TCP
+    port: {{ $cfg.api_server.listen_port }}
+    targetPort: 8080
+  - name: proxy
+    protocol: TCP
+    port: {{ $cfg.proxy_server.listen_port }}
+    targetPort: 8090
+  - name: health-server
+    protocol: TCP
+    port: {{ $cfg.health_server.listen_port }}
+    targetPort: 8060

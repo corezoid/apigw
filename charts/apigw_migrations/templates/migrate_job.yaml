@@ -1,0 +1,77 @@
+{{- $db := .Values.global.db.secret.data }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-{{ .Values.helm.app }}-migrate-job
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    release: {{ .Release.Name | quote }}
+    app: {{ .Values.helm.app | quote }}
+    tier: {{ .Values.helm.tier | quote }}
+spec:
+  activeDeadlineSeconds: 180 # 3min
+  ttlSecondsAfterFinished: 360 # 6min
+  parallelism: 1
+  completions: 1
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        release: {{ .Release.Name | quote }}
+        app: {{ .Values.helm.app | quote }}
+        tier: {{ .Values.helm.tier | quote }}
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: main
+        image: {{ include "apigw_migrations.imageUrl" . | quote }}
+        command: [ "cz" ]
+        args:
+          - "ops"
+          - "migrator"
+          - "migrate"
+          - "--dir={{ .Values.dir }}"
+          - "--migrator-username={{ $db.dbuser }}"
+          - "--migrator-password={{ $db.dbpwd }}"
+          - "--app-username={{ $db.dbuser }}"
+          - "--owner-username={{ $db.dbuser }}"
+          - "--host={{ $db.dbhost }}"
+          - "--port={{ $db.dbport }}"
+          - "--db=apigw"
+        resources:
+          limits:
+            cpu: 200m
+            memory: 200Mi
+          requests:
+            cpu: 200m
+            memory: 200Mi
+        volumeMounts:
+          - name: tmp
+            mountPath: /tmp
+        securityContext:
+          runAsUser: 501
+          runAsGroup: 501
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          privileged: false
+          capabilities:
+            drop:
+              - NET_ADMIN
+              - SYS_ADMIN
+              - MAC_ADMIN
+              - SETUID
+              - SETGID
+              - FOWNER
+              - CHOWN
+              - MKNOD
+      {{- if not (eq .Values.global.repotype "public") }}
+      imagePullSecrets:
+        - name: {{ .Values.global.imagePullSecrets.name }}
+      {{- end }}
+      volumes:
+        - name: tmp
+          emptyDir: { }

@@ -1,0 +1,5 @@
+apiVersion: v2
+name: apigw_migrations
+version: 2.0.1
+appVersion: 1.4.2
+description: The component provides apigw migrations

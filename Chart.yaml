@@ -1,0 +1,26 @@
+apiVersion: v2
+name: apigw_app
+version: 2.0.5
+description: The API Gateway application
+type: application
+keywords:
+  - api-gateway
+  - apigw
+home: https://simulator.company
+dependencies:
+  - name: apigw
+    version: 2.0.2
+  - name: apigw-frontend
+    version: 2.0.1
+  - name: apigw_ingress
+    version: 0.0.3
+  - name: apigw_migrations
+    version: 2.0.1
+
+maintainers:
+  - name: Andrey Vinokurov
+    email: andrey.vinokurov@corezoid.com
+
+icon: "https://media-exp1.licdn.com/dms/image/C4E0BAQG_mUmw1UsyuA/company-logo_200_200/0/1525514455224?e=2147483647&v=beta&t=Bmmfd3W25bG64i0R7wY7ZeuMRw7-Y6Xsh94N4nvpWFk"
+
+appVersion: 1.4.1

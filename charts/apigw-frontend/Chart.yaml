@@ -1,0 +1,5 @@
+apiVersion: v2
+name: apigw-frontend
+version: 2.0.1
+appVersion: 1.0.1
+description: The API Gateway frontend.
