@@ -1,24 +1,21 @@
 global:
-
   # second level domain only! / core domain (example: example.com)
   domain: "example.com"
   # subdomain / sitename - prod.example.com (example: prod), if no sub-domain, then set blank (subdomain: "")
   subdomain: "prod"
-
   imageRegistry: docker-hub.middleware.biz
   imagePullPolicy: Always
   repotype: public
-
   # Enable or disable Service or Pod Monitor, if not set then use serviceMonitor.enabled: false
   serviceMonitor:
     enabled: false
-
   deploymentStrategy:
     type: RollingUpdate
-
   product: "api-gw"
-
   apigw:
+    secret:
+      postgres:
+        annotations: {}
     apigw_app:
       # Can set imagePullPolicy for application image only, or use from .global
       # imagePullPolicy: IfNotPresent
@@ -32,6 +29,8 @@ global:
           cpu: 200m
           memory: 200Mi
       config:
+        sync_api_server:
+          listen_port: 8081
         callback_server:
           aes_key: 'AES_KEY'
           aes_nonce: 'AES_NONCE'
@@ -45,6 +44,11 @@ global:
           read_timeout_sec: 30
         db:
           dsn: 'postgres://${APIGW_POSTGRESQL_USERNAME}:${APIGW_POSTGRESQL_PASSWORD}@${APIGW_POSTGRESQL_HOST}:${APIGW_POSTGRESQL_PORT}/apigw?sslmode=disable&binary_parameters=yes'
+        redis:
+          host: '${APIGW_REDIS_HOST}'
+          port: 6379
+          database: 0
+          password: '${APIGW_REDIS_PASSWORD}'
         single_account:
           enabled: true
           http_host: 'https://${APIGW_SA_HOST}'
@@ -70,19 +74,14 @@ global:
             # Corezoid apikey secret
             admin_secret: 'NHpUvs1AbiP9GO0FKuxVL5fxzTgP5PFrwBw4Ndp4BaJL8ZT6FE'
             http_host: 'https://${APIGW_COREZOID_HOST}'
+          cors:
+            allowed_origins: ['*']
+          use_deprecated_task_format: true
         health_server:
           listen_host: '0.0.0.0'
           listen_port: 8060
-        prometheus:
-          enabled: true
-          type: 'scrape'
-          metrics_host: '0.0.0.0'
-          metrics_port: 9100
         metrics:
-          add_path_label: true
-          add_process_label: true
-          add_api_label: true
-
+          listen_port: 9100
       # Sub-domian for APIGW callback-server
       callback_server_subDomain: "cb-apigw"
       # Sub-domian for APIGW server-server, e.g. *.apigw.example.com
@@ -91,21 +90,20 @@ global:
       api_server_subDomain: "api-apigw"
       # Sub-domian for APIGW frontend
       frontend_subDomain: "apigw"
-
+      # Sub-domian for APIGW SyncAPI
+      sync_subDomain: "sync-apigw"
     apigw_frontend:
       # Can set imagePullPolicy for frontend image only, or use from .global
-      # imagePullPolicy: IfNotPresent
+      imagePullPolicy: IfNotPresent
       autoscaling:
-        # true - will start minReplicas count of frontend pods
-        # false - will start single frontend pods
-        enabled: false
+        # true - secret will be created automaticaly with provided values
+      # false - secret should be created manualy
+        enabled: true
         minReplicas: 2
         maxReplicas: 10
-
   sa:
     # Sub-domian for Single-Account service
     subDomain: "account"
-
   db:
     internal: false
     secret:
@@ -122,11 +120,19 @@ global:
         dbuser: "apigw_user"
         # PostgreSQL database application password
         dbpwd: "APP_DB_PASSWORD"
-
+  redis:
+    internal: true
+    secret:
+      name: "redis"
+      create: true
+      data:
+        host: "apigw-redis"
+        port: "6379"
+        password: "REDIS_PASSWORD"
   ingress:
-    className:
+    className: nginx
     annotations:
-      kubernetes.io/ingress.class: nginx
+      ingress.class: nginx
       # nginx.ingress.kubernetes.io/configuration-snippet: |
       #   more_set_headers X-Content-Type-Options "nosniff" always;
       #   more_set_headers X-Frame-Options "SAMEORIGIN" always;

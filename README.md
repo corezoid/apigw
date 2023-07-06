@@ -4,7 +4,7 @@ Before install/upgrade check [values.yaml](values.yaml) file first.
 
 You need next domains:
 
-`api-apigw.example.com` - domain for api-call
+`api-apigw.example.com` - domain fot api-call
 
 `cb-apigw.example.com` - domain for call-back
 

@@ -17,16 +17,28 @@ spec:
   - name: callback
     protocol: TCP
     port: {{ $cfg.callback_server.listen_port }}
-    targetPort: 8070
+    targetPort: {{ $cfg.callback_server.listen_port }}
   - name: api
     protocol: TCP
     port: {{ $cfg.api_server.listen_port }}
-    targetPort: 8080
+    targetPort: {{ $cfg.api_server.listen_port }}
   - name: proxy
     protocol: TCP
     port: {{ $cfg.proxy_server.listen_port }}
-    targetPort: 8090
+    targetPort: {{ $cfg.proxy_server.listen_port }}
   - name: health-server
     protocol: TCP
     port: {{ $cfg.health_server.listen_port }}
-    targetPort: 8060
+    targetPort: {{ $cfg.health_server.listen_port }}
+  - name: sync
+    protocol: TCP
+    port: {{ $cfg.sync_api_server.listen_port }}
+    targetPort: {{ $cfg.sync_api_server.listen_port }}
+{{- if .Values.global.serviceMonitor }}
+{{- if .Values.global.serviceMonitor.enabled }}
+  - name: metrics
+    protocol: TCP
+    port: {{ $cfg.metrics.listen_port }}
+    targetPort: {{ $cfg.metrics.listen_port }}
+{{- end }}
+{{- end }}

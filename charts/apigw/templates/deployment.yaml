@@ -45,6 +45,7 @@ spec:
           args: ["--config", "/apigw/apigw.json"]
           env:
             {{- include "apigw_app.container_envs_db" . | indent 12 }}
+            {{- include "apigw_app.container_envs_redis" . | indent 12 }}
             {{- include "apigw_app.container_envs_host" . | indent 12 }}
             {{- if $cfg.gopsagent }}
             {{- if $cfg.gopsagent.enabled }}
@@ -62,9 +63,12 @@ spec:
             - containerPort: {{ $cfg.api_server.listen_port }}
             - containerPort: {{ $cfg.proxy_server.listen_port }}
             - containerPort: {{ $cfg.health_server.listen_port }}
+            - containerPort: {{ $cfg.sync_api_server.listen_port }}
             {{- if .Values.global.serviceMonitor }}
             {{- if .Values.global.serviceMonitor.enabled }}
-            - containerPort: {{ $cfg.prometheus.metrics_port }}
+            - name: metrics
+              containerPort: {{ $cfg.metrics.listen_port }}
+              protocol: TCP
             {{- end }}
             {{- end }}
           volumeMounts:
@@ -96,14 +100,27 @@ spec:
                 - MKNOD
           readinessProbe:
             httpGet:
+              scheme: HTTP
               port: {{ $cfg.proxy_server.listen_port}}
               path: {{ $cfg.proxy_server.ready_path}}
-            timeoutSeconds: 5
-            failureThreshold: 3
+            initialDelaySeconds: 2
             periodSeconds: 5
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              scheme: HTTP
+              port: {{ $cfg.proxy_server.listen_port}}
+              path: {{ $cfg.proxy_server.ready_path}}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3  
         {{- if $d.debug_container }}
         - name: 'debug'
-          image: 'docker-hub.middleware.biz/hub.docker.com/library/alpine:3.13'
+          image: 'docker-hub.middleware.biz/hub.docker.com/library/alpine:3.18'
           command: [ "/bin/sh" ]
           args: [ "-c", "while true; do sleep 5;done" ]
           resources:
