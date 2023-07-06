@@ -33,6 +33,34 @@
 {{- end }}
 {{- end }}
 
+{{- define "apigw_app.container_envs_redis" }}
+{{- if .Values.global.redis.secret.create }}
+{{- $secret_name_redis := ( include "apigw.redis.secretName" . ) }}
+- name: APIGW_REDIS_HOST
+  valueFrom:
+    secretKeyRef:
+      name: {{ $secret_name_redis }}
+      key: host
+- name: APIGW_REDIS_PORT
+  valueFrom:
+    secretKeyRef:
+      name: {{ $secret_name_redis }}
+      key: port
+- name: APIGW_REDIS_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ $secret_name_redis }}
+      key: password
+{{- else }}
+- name: APIGW_REDIS_HOST
+  value: {{ .Values.global.redis.secret.data.host | quote }}
+- name: APIGW_REDIS_PORT
+  value: {{ .Values.global.redis.secret.data.port | quote }}
+- name: APIGW_REDIS_PASSWORD
+  value: {{ .Values.global.redis.secret.data.password | quote }}
+{{- end }}
+{{- end }}
+
 {{- define "apigw_app.container_envs_host" }}
 - name: APIGW_CALLBACK_SERVER_HOST
   value: {{ include "apigw.hosts.callback_server" . }}
@@ -40,6 +68,8 @@
   value: {{ include "apigw.hosts.proxy_server" . }}
 - name: APIGW_API_SERVER_HOST
   value: {{ include "apigw.hosts.api_server" . }}
+- name: APIGW_SYNCAPI_SERVER_HOST
+  value: {{ include "apigw.hosts.sync" . }}
 - name: APIGW_FRONTEND_HOST
   value: {{ include "apigw.hosts.frontend" . }}
 - name: APIGW_SA_HOST

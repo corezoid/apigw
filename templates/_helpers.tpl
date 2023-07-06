@@ -26,7 +26,18 @@ app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
 
 {{/* Define postgres secret name */}}
 {{- define "postgres.secretName" -}}
-{{ .Release.Name }}-{{ .Values.global.db.secret.name }}
+{{ .Release.Name }}-apigw-{{ .Values.global.db.secret.name }}
+{{- end }}
+
+{{- define "apigw.postgresSecretAnnotations" -}}
+{{ if .Values.global.apigw.secret.postgres.annotations -}}
+{{ toYaml .Values.global.apigw.secret.postgres.annotations }}
+{{ end -}}
+{{- end }}
+
+{{/* Define redis secret name */}}
+{{- define "apigw.redis.secretName" -}}
+{{ .Release.Name }}-apigw-{{ .Values.global.redis.secret.name }}-secret
 {{- end }}
 
 {{- define "common.ServiceMonitor.apiVersion" -}}
