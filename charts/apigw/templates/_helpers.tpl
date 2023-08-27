@@ -11,7 +11,7 @@ tier: {{ .Values.appName| quote }}
 Image url
 */}}
 {{- define "apigw_app.imageUrl" -}}
-{{ .Values.global.imageRegistry }}{{ if eq .Values.global.repotype "public" }}/public/apigw{{- else }}/{{ .Values.global.repotype }}{{- end }}/apigw-apigw:{{ .Values.global.apigw.apigw_app.tag | default .Chart.AppVersion }}
+{{ .Values.global.imageRegistry }}{{ if eq .Values.global.repotype "public" }}/public{{- else }}/{{ .Values.global.repotype }}{{- end }}/apigw-apigw:{{ .Values.global.apigw.apigw_app.tag | default .Chart.AppVersion }}
 {{- end }}
 
 {{/*

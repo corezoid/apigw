@@ -59,11 +59,21 @@ spec:
                   fieldPath: status.podIP
           {{- include "apigw_app.resources" . | indent 10 }}
           ports:
-            - containerPort: {{ $cfg.callback_server.listen_port }}
-            - containerPort: {{ $cfg.api_server.listen_port }}
-            - containerPort: {{ $cfg.proxy_server.listen_port }}
-            - containerPort: {{ $cfg.health_server.listen_port }}
-            - containerPort: {{ $cfg.sync_api_server.listen_port }}
+            - name: callback
+              containerPort: {{ $cfg.callback_server.listen_port }}
+              protocol: TCP
+            - name: apiserver
+              containerPort: {{ $cfg.api_server.listen_port }}
+              protocol: TCP
+            - name: proxyserver
+              containerPort: {{ $cfg.proxy_server.listen_port }}
+              protocol: TCP
+            - name: healthserver
+              containerPort: {{ $cfg.health_server.listen_port }}
+              protocol: TCP
+            - name: syncapiserver
+              containerPort: {{ $cfg.sync_api_server.listen_port }}
+              protocol: TCP
             {{- if .Values.global.serviceMonitor }}
             {{- if .Values.global.serviceMonitor.enabled }}
             - name: metrics
@@ -117,7 +127,7 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 5
             successThreshold: 1
-            failureThreshold: 3  
+            failureThreshold: 3
         {{- if $d.debug_container }}
         - name: 'debug'
           image: 'docker-hub.middleware.biz/hub.docker.com/library/alpine:3.18'
@@ -137,3 +147,7 @@ spec:
             name: {{ .Release.Name }}-apigw-config
         - name: gops
           emptyDir: {}
+      {{- with .Values.global.apigw.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
