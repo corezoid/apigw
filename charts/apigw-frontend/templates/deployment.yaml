@@ -75,7 +75,7 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
+      {{- with .Values.global.apigw.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
