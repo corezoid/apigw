@@ -1,0 +1,33 @@
+{{- define "apigw.container_envs_db" }}
+{{- $apigw_secret_db := "" }}
+{{- if .Values.global.apigw.db }}
+{{- $apigw_secret_db = .Values.global.apigw.db.secret }}
+{{- else if .Values.global.db }}
+{{- $apigw_secret_db = .Values.global.db.secret }}
+{{- else }}
+{{- $apigw_secret_db = nil }}
+{{- end }}
+{{- if $apigw_secret_db.create }}
+{{- $secret_name := ( include "apigw.postgresSecretName" . ) }}
+- name: APIGW_POSTGRESQL_HOST
+  valueFrom:
+    secretKeyRef:
+      name: {{ $secret_name }}
+      key: dbhost
+- name: APIGW_POSTGRESQL_PORT
+  valueFrom:
+    secretKeyRef:
+      name: {{ $secret_name }}
+      key: dbport
+- name: APIGW_POSTGRESQL_USERNAME
+  valueFrom:
+    secretKeyRef:
+      name: {{ $secret_name }}
+      key: dbuser
+- name: APIGW_POSTGRESQL_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ $secret_name }}
+      key: dbpwd
+{{- end }}
+{{- end }}

@@ -6,7 +6,7 @@ kind: NetworkPolicy
 metadata:
   name: {{ .Release.Name }}-{{ .Values.appName }}-policy
   labels:
-{{- include "redis.labels" . | nindent 4 }}
+    {{- include "redis.labels" . | nindent 4 }}
 spec:
   podSelector:
     matchLabels:

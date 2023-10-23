@@ -5,12 +5,10 @@ metadata:
   name: apigw-{{ .Values.appName }}
   labels:
     {{- include "redis.labels" . | nindent 4 }}
-    role: master
 spec:
   ports:
   - port: {{ .Values.appPort }}
     targetPort: {{ .Values.appPort }}
   selector:
     {{- include "redis.labels" . | nindent 4 }}
-    role: master
 {{- end }}

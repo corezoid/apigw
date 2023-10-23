@@ -9,7 +9,6 @@ spec:
   selector:
     matchLabels:
       {{- include "redis.labels" . | nindent 6 }}
-      role: master
   replicas: 1
   template:
     metadata:
@@ -17,7 +16,6 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmap-redis.yaml") . | sha256sum }}
       labels:
         {{- include "redis.labels" . | nindent 8 }}
-        role: master
     spec:
       {{- if not (eq .Values.global.repotype "public") }}
       imagePullSecrets:
@@ -29,7 +27,6 @@ spec:
         imagePullPolicy: IfNotPresent
         resources:
           limits:
-            cpu: 100m
             memory: 200Mi
           requests:
             cpu: 50m
@@ -61,5 +58,4 @@ spec:
         - name: redisconfig
           configMap:
             name: {{ .Release.Name }}-{{ .Values.appName }}-config
-
 {{- end }}

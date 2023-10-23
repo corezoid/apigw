@@ -5,17 +5,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Chart.Name }}-deployment
+  name: {{ include "apigw.apigw_app.deployment.name" . }}
   labels:
-    release: {{ .Release.Name | quote }}
-    app: {{ .Values.helm.app | quote }}
-    tier: {{ .Values.helm.tier | quote }}
+    {{- include "apigw.labels" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
-      release: {{ .Release.Name | quote }}
-      app: {{ .Values.helm.app | quote }}
-      tier: {{ .Values.helm.tier | quote }}
+      {{- include "apigw.labels" . | nindent 6 }}
   strategy:
     type: {{ .Values.global.deploymentStrategy.type }}
     rollingUpdate:
@@ -27,9 +23,7 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
       labels:
-        release: {{ .Release.Name | quote }}
-        app: {{ .Values.helm.app | quote }}
-        tier: {{ .Values.helm.tier | quote }}
+        {{- include "apigw.labels" . | nindent 8 }}
     spec:
       # equal to ProxyServer.ReadTimeoutSec+ProxyServer.MaxCallbackWaitSec+20
       terminationGracePeriodSeconds: 80
@@ -37,6 +31,7 @@ spec:
       imagePullSecrets:
         - name: {{ .Values.global.imagePullSecrets.name }}
       {{- end }}
+      serviceAccountName: {{ include "apigw.apigw_app.serviceaccount.name" . }}
       containers:
         - name: {{ .Chart.Name }}
           imagePullPolicy: {{ include "apigw_app.imagePullPolicy" . | quote }}
@@ -44,9 +39,9 @@ spec:
           command: ["/apigw/apigw"]
           args: ["--config", "/apigw/apigw.json"]
           env:
-            {{- include "apigw_app.container_envs_db" . | indent 12 }}
-            {{- include "apigw_app.container_envs_redis" . | indent 12 }}
-            {{- include "apigw_app.container_envs_host" . | indent 12 }}
+            {{- include "apigw.container_envs_db" . | indent 12 }}
+            {{- include "apigw.container_envs_redis" . | indent 12 }}
+            {{- include "apigw.container_envs_host" . | indent 12 }}
             {{- if $cfg.gopsagent }}
             {{- if $cfg.gopsagent.enabled }}
             - name: GOPS_CONFIG_DIR
@@ -57,28 +52,28 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: status.podIP
-          {{- include "apigw_app.resources" . | indent 10 }}
+          {{- include "apigw.apigw_app.resources" . | indent 10 }}
           ports:
-            - name: callback
-              containerPort: {{ $cfg.callback_server.listen_port }}
-              protocol: TCP
-            - name: apiserver
-              containerPort: {{ $cfg.api_server.listen_port }}
-              protocol: TCP
-            - name: proxyserver
-              containerPort: {{ $cfg.proxy_server.listen_port }}
-              protocol: TCP
-            - name: healthserver
-              containerPort: {{ $cfg.health_server.listen_port }}
-              protocol: TCP
-            - name: syncapiserver
-              containerPort: {{ $cfg.sync_api_server.listen_port }}
-              protocol: TCP
+            - name: {{ include "apigw.apigw_app.port.callback_server.Name" . }}
+              containerPort: {{ include "apigw.apigw_app.port.callback_server.Number" . }}
+              protocol: {{ include "apigw.apigw_app.port.callback_server.Protocol" . }}
+            - name: {{ include "apigw.apigw_app.port.api_server.Name" . }}
+              containerPort: {{ include "apigw.apigw_app.port.api_server.Number" . }}
+              protocol: {{ include "apigw.apigw_app.port.api_server.Protocol" . }}
+            - name: {{ include "apigw.apigw_app.port.proxy_server.Name" . }}
+              containerPort: {{ include "apigw.apigw_app.port.proxy_server.Number" . }}
+              protocol: {{ include "apigw.apigw_app.port.proxy_server.Protocol" . }}
+            - name: {{ include "apigw.apigw_app.port.health_server.Name" . }}
+              containerPort: {{ include "apigw.apigw_app.port.health_server.Number" . }}
+              protocol: {{ include "apigw.apigw_app.port.health_server.Protocol" . }}
+            - name: {{ include "apigw.apigw_app.port.sync_api_server.Name" . }}
+              containerPort: {{ include "apigw.apigw_app.port.sync_api_server.Number" . }}
+              protocol: {{ include "apigw.apigw_app.port.sync_api_server.Protocol" . }}
             {{- if .Values.global.serviceMonitor }}
             {{- if .Values.global.serviceMonitor.enabled }}
-            - name: metrics
-              containerPort: {{ $cfg.metrics.listen_port }}
-              protocol: TCP
+            - name: {{ include "apigw.apigw_app.port.metrics.Name" . }}
+              containerPort: {{ include "apigw.apigw_app.port.metrics.Number" . }}
+              protocol: {{ include "apigw.apigw_app.port.metrics.Protocol" . }}
             {{- end }}
             {{- end }}
           volumeMounts:
@@ -135,7 +130,6 @@ spec:
           args: [ "-c", "while true; do sleep 5;done" ]
           resources:
             limits:
-              cpu: 200m
               memory: 200Mi
           volumeMounts:
             - name: gops
@@ -144,7 +138,7 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: {{ .Release.Name }}-apigw-config
+            name: {{ include "apigw.apigw_app.configmap.name" . }}
         - name: gops
           emptyDir: {}
       {{- with .Values.global.apigw.affinity }}

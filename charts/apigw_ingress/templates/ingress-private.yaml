@@ -21,9 +21,9 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: apigw-service
+                name: {{ include "apigw.apigw_app.service.name" . }}
                 port:
-                  number: {{ .Values.global.apigw.apigw_app.config.api_server.listen_port }}
+                  number: {{ include "apigw.apigw_app.port.api_server.Number" . }}
     - host: {{ include "apigw.hosts.callback_server" . }}
       http:
         paths:
@@ -31,9 +31,10 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: apigw-service
+                name: {{ include "apigw.apigw_app.service.name" . }}
                 port:
-                  number: {{ .Values.global.apigw.apigw_app.config.callback_server.listen_port }}
+                  number: {{ include "apigw.apigw_app.port.callback_server.Number" . }}
+{{- if not .Values.global.ingress_public }}
     - host: '*.{{ include "apigw.hosts.proxy_server" . }}'
       http:
         paths:
@@ -41,9 +42,10 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: apigw-service
+                name: {{ include "apigw.apigw_app.service.name" . }}
                 port:
-                  number: {{ .Values.global.apigw.apigw_app.config.proxy_server.listen_port }}
+                  number: {{ include "apigw.apigw_app.port.proxy_server.Number" . }}
+{{- end }}
     - host: {{ include "apigw.hosts.frontend" . }}
       http:
         paths:
@@ -61,6 +63,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: apigw-service
+                name: {{ include "apigw.apigw_app.service.name" . }}
                 port:
-                  number: {{ .Values.global.apigw.apigw_app.config.sync_api_server.listen_port }}
+                  number: {{ include "apigw.apigw_app.port.sync_api_server.Number" . }}

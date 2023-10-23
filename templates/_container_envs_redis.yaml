@@ -1,0 +1,28 @@
+{{- define "apigw.container_envs_redis" }}
+{{- $apigw_secret_redis := "" }}
+{{- if .Values.global.apigw.redis }}
+{{- $apigw_secret_redis = .Values.global.apigw.redis.secret }}
+{{- else if .Values.global.redis }}
+{{- $apigw_secret_redis = .Values.global.redis.secret }}
+{{- else }}
+{{- $apigw_secret_redis = nil }}
+{{- end }}
+{{- if $apigw_secret_redis.create }}
+{{- $secret_name_redis := ( include "apigw.redisSecretName" . ) }}
+- name: APIGW_REDIS_HOST
+  valueFrom:
+    secretKeyRef:
+      name: {{ $secret_name_redis }}
+      key: host
+- name: APIGW_REDIS_PORT
+  valueFrom:
+    secretKeyRef:
+      name: {{ $secret_name_redis }}
+      key: port
+- name: APIGW_REDIS_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ $secret_name_redis }}
+      key: password
+{{- end }}
+{{- end }}
