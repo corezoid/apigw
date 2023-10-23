@@ -3,8 +3,7 @@ Common labels
 */}}
 {{- define "apigw.labels" -}}
 release: {{ .Release.Name | quote }}
-app: {{ .Values.appName | quote }}
-tier: {{ .Values.appName| quote }}
+application: {{ .Values.appName | quote }}
 {{- end }}
 
 {{/*
@@ -14,39 +13,37 @@ Image url
 {{ .Values.global.imageRegistry }}{{ if eq .Values.global.repotype "public" }}/public{{- else }}/{{ .Values.global.repotype }}{{- end }}/apigw-apigw:{{ .Values.global.apigw.apigw_app.tag | default .Chart.AppVersion }}
 {{- end }}
 
-{{/*
-Define ApiGW hosts
-*/}}
-{{- define "apigw.hosts.callback_server" -}}
-{{ .Values.global.apigw.apigw_app.callback_server_subDomain }}.{{ .Values.global.domain }}
+{{- define "module.apigw_app.name" -}}
+{{ include "module.name" . }}-{{- default "apigw-app" .Values.global.apigw.apigw_app.name | trunc 63 | trimSuffix "-" }}
 {{- end -}}
 
-{{- define "apigw.hosts.proxy_server" -}}
-{{ .Values.global.apigw.apigw_app.proxy_server_subDomain }}.{{ .Values.global.domain }}
+{{- define "apigw.apigw_app.service.name" -}}
+{{- include "module.apigw_app.name" . }}
 {{- end -}}
 
-{{- define "apigw.hosts.api_server" -}}
-{{ .Values.global.apigw.apigw_app.api_server_subDomain }}.{{ .Values.global.domain }}
+{{- define "apigw.apigw_app.configmap.name" -}}
+{{- include "module.apigw_app.name" . }}-configmap
 {{- end -}}
 
-{{- define "apigw.hosts.frontend" -}}
-{{ .Values.global.apigw.apigw_app.frontend_subDomain }}.{{ .Values.global.domain }}
+{{- define "apigw.apigw_app.deployment.name" -}}
+{{- include "module.apigw_app.name" . }}
 {{- end -}}
 
-{{- define "apigw.hosts.sync" -}}
-{{ .Values.global.apigw.apigw_app.sync_subDomain }}.{{ .Values.global.domain }}
+{{- define "apigw.apigw_app.role.name" -}}
+{{- include "module.apigw_app.name" . }}
 {{- end -}}
 
-{{- define "apigw.hosts.sa" -}}
-{{ .Values.global.sa.subDomain }}.{{ .Values.global.domain }}
+{{- define "apigw.apigw_app.roleBinding.name" -}}
+{{- include "module.apigw_app.name" . }}
 {{- end -}}
 
-{{- define "apigw.hosts.corezoid" -}}
-{{- if eq .Values.global.subdomain "" -}}
-{{ .Values.global.domain }}
-{{- else -}}
-{{ .Values.global.subdomain }}.{{ .Values.global.domain }}
+{{- define "apigw.apigw_app.serviceaccount.name" -}}
+{{- include "module.apigw_app.name" . }}
 {{- end -}}
+
+
+{{- define "apigw.apigw_app.cpuHpa.name" -}}
+{{- include "module.apigw_app.name" . }}-cpu-autoscale
 {{- end -}}
 
 {{- define "apigw_app.imagePullPolicy" -}}

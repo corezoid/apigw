@@ -10,12 +10,10 @@ metadata:
 spec:
   selector:
     matchLabels:
-      release: {{ .Release.Name | quote }}
-      app: {{ .Values.helm.app | quote }}
-      tier: {{ .Values.helm.tier | quote }}
+      {{- include "apigw.labels" . | nindent 6 }}
   endpoints:
   - path: {{ .Values.prometheusPath | default "/metrics" }}
-    targetPort: {{ .Values.global.apigw.apigw_app.config.metrics.listen_port | default "9100" }}
+    targetPort: {{ include "apigw.apigw_app.port.metrics.Name" . }}
     interval: {{ .Values.prometheusInterval | default "15s" }}
 {{- end -}}
 {{- end -}}

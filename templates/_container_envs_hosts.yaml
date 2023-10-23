@@ -1,0 +1,16 @@
+{{- define "apigw.container_envs_host" }}
+- name: APIGW_CALLBACK_SERVER_HOST
+  value: {{ include "apigw.hosts.callback_server" . }}
+- name: APIGW_PROXY_SERVER_HOST
+  value: {{ include "apigw.hosts.proxy_server" . }}
+- name: APIGW_API_SERVER_HOST
+  value: {{ include "apigw.hosts.api_server" . }}
+- name: APIGW_SYNCAPI_SERVER_HOST
+  value: {{ include "apigw.hosts.sync" . }}
+- name: APIGW_FRONTEND_HOST
+  value: {{ include "apigw.hosts.frontend" . }}
+- name: APIGW_SA_HOST
+  value: {{ include "apigw.hosts.sa" . }}
+- name: APIGW_COREZOID_HOST
+  value: {{ include "apigw.hosts.corezoid" . }}
+{{- end }}

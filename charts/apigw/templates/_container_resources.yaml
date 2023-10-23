@@ -1,20 +1,14 @@
-{{- define "apigw_app.resources" }}
-{{- if .Values.global.apigw.resources }}
-{{- $resources := .Values.global.apigw.resources }}
+{{- define "apigw.apigw_app.resources" }}
+{{- if .Values.global.apigw.apigw_app.resources }}
+{{- $resources := .Values.global.apigw.apigw_app.resources }}
 resources:
-  limits:
-    cpu: {{ $resources.limits.cpu | quote }}
-    memory: {{ $resources.limits.memory | quote }}
-  requests:
-    cpu: {{ $resources.requests.cpu | quote }}
-    memory: {{ $resources.requests.memory | quote }}
+{{ $resources | toYaml | trim | indent 4 }}
 {{- else }}
 resources:
   limits:
-    cpu: 200m
     memory: 400Mi
   requests:
-    cpu: 200m
-    memory: 400Mi
+    cpu: 50m
+    memory: 200Mi
 {{- end }}
 {{- end }}

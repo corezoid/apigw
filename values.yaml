@@ -23,7 +23,6 @@ global:
       maxReplicas: 4
       resources:
         limits:
-          cpu: 500m
           memory: 500Mi
         requests:
           cpu: 200m
@@ -42,8 +41,14 @@ global:
           listen_host: '0.0.0.0'
           listen_port: 8070
           read_timeout_sec: 30
-        db:
-          dsn: 'postgres://${APIGW_POSTGRESQL_USERNAME}:${APIGW_POSTGRESQL_PASSWORD}@${APIGW_POSTGRESQL_HOST}:${APIGW_POSTGRESQL_PORT}/apigw?sslmode=disable&binary_parameters=yes'
+        postgres:
+          host: '${APIGW_POSTGRESQL_HOST}'
+          port: 5432
+          database: 'apigw'
+          user: '${APIGW_POSTGRESQL_USERNAME}'
+          password: '${APIGW_POSTGRESQL_PASSWORD}'
+          ssl:
+            enabled: false
         redis:
           host: '${APIGW_REDIS_HOST}'
           port: 6379

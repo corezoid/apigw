@@ -12,7 +12,7 @@ data:
     pid        /var/run/nginx.pid;
 
     events {
-      worker_connections  512000;
+      worker_connections  32000;
       multi_accept on;
     }
 
@@ -67,6 +67,6 @@ data:
       location /api/ {
         client_max_body_size 50m;
         proxy_set_header Connection "keep-alive";
-        proxy_pass http://apigw-service:8080/;
+        proxy_pass http://{{ include "apigw.apigw_app.service.name" . }}:{{ include "apigw.apigw_app.port.api_server.Number" . }}/;
       }
     }

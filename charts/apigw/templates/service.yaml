@@ -2,43 +2,39 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: apigw-service
+  name: {{ include "apigw.apigw_app.service.name" . }}
   labels:
-    release: {{ .Release.Name | quote }}
-    app: {{ .Values.helm.app | quote }}
-    tier: {{ .Values.helm.tier | quote }}
+    {{- include "apigw.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.helm.service_type | quote }}
   selector:
-    release: {{ .Release.Name | quote }}
-    app: {{ .Values.helm.app | quote }}
-    tier: {{ .Values.helm.tier | quote }}
+    {{- include "apigw.labels" . | nindent 4 }}
   ports:
-  - name: callback
-    protocol: TCP
-    port: {{ $cfg.callback_server.listen_port }}
-    targetPort: {{ $cfg.callback_server.listen_port }}
-  - name: api
-    protocol: TCP
-    port: {{ $cfg.api_server.listen_port }}
-    targetPort: {{ $cfg.api_server.listen_port }}
-  - name: proxy
-    protocol: TCP
-    port: {{ $cfg.proxy_server.listen_port }}
-    targetPort: {{ $cfg.proxy_server.listen_port }}
-  - name: health-server
-    protocol: TCP
-    port: {{ $cfg.health_server.listen_port }}
-    targetPort: {{ $cfg.health_server.listen_port }}
-  - name: sync
-    protocol: TCP
-    port: {{ $cfg.sync_api_server.listen_port }}
-    targetPort: {{ $cfg.sync_api_server.listen_port }}
+    - name: {{ include "apigw.apigw_app.port.callback_server.Name" . }}
+      port: {{ include "apigw.apigw_app.port.callback_server.Number" . }}
+      targetPort: {{ include "apigw.apigw_app.port.callback_server.Number" . }}
+      protocol: {{ include "apigw.apigw_app.port.callback_server.Protocol" . }}
+    - name: {{ include "apigw.apigw_app.port.api_server.Name" . }}
+      port: {{ include "apigw.apigw_app.port.api_server.Number" . }}
+      targetPort: {{ include "apigw.apigw_app.port.api_server.Number" . }}
+      protocol: {{ include "apigw.apigw_app.port.api_server.Protocol" . }}
+    - name: {{ include "apigw.apigw_app.port.proxy_server.Name" . }}
+      port: {{ include "apigw.apigw_app.port.proxy_server.Number" . }}
+      targetPort: {{ include "apigw.apigw_app.port.proxy_server.Number" . }}
+      protocol: {{ include "apigw.apigw_app.port.proxy_server.Protocol" . }}
+    - name: {{ include "apigw.apigw_app.port.health_server.Name" . }}
+      port: {{ include "apigw.apigw_app.port.health_server.Number" . }}
+      targetPort: {{ include "apigw.apigw_app.port.health_server.Number" . }}
+      protocol: {{ include "apigw.apigw_app.port.health_server.Protocol" . }}
+    - name: {{ include "apigw.apigw_app.port.sync_api_server.Name" . }}
+      port: {{ include "apigw.apigw_app.port.sync_api_server.Number" . }}
+      targetPort: {{ include "apigw.apigw_app.port.sync_api_server.Number" . }}
+      protocol: {{ include "apigw.apigw_app.port.sync_api_server.Protocol" . }}
 {{- if .Values.global.serviceMonitor }}
 {{- if .Values.global.serviceMonitor.enabled }}
-  - name: metrics
-    protocol: TCP
-    port: {{ $cfg.metrics.listen_port }}
-    targetPort: {{ $cfg.metrics.listen_port }}
+    - name: {{ include "apigw.apigw_app.port.metrics.Name" . }}
+      port: {{ include "apigw.apigw_app.port.metrics.Number" . }}
+      targetPort: {{ include "apigw.apigw_app.port.metrics.Number" . }}
+      protocol: {{ include "apigw.apigw_app.port.metrics.Protocol" . }}
 {{- end }}
 {{- end }}

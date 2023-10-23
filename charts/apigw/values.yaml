@@ -11,7 +11,7 @@ helm:
   app: apigw
   tier: apigw
   chart:
-    version: "1.0.1"
+    version: "2.2.0"
     description: "The API Gateway service."
 
 config_file: apigw.json

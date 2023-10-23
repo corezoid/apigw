@@ -2,7 +2,8 @@
 Common labels
 */}}
 {{- define "redis.labels" -}}
-tier: {{ .Values.appName }}
 release: {{ .Release.Name }}
+application: {{ .Values.appName }}
+role: master
 {{- end }}
 

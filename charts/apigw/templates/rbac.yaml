@@ -1,0 +1,44 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "apigw.apigw_app.role.name" . }}
+rules:
+- apiGroups: [""]
+  resources: ["pods/exec"]
+  verbs: ["create"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  resourceNames: [
+    {{ include "apigw.postgresSecretName" . | quote }},
+    {{ include "apigw.redisSecretName" . | quote }}
+  ]
+  verbs: ["get", "watch", "list"]
+- apiGroups: [""]
+  resources: ["configmaps"]
+  resourceNames: [{{ include "apigw.apigw_app.configmap.name" . | quote }}]
+  verbs: ["get"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "apigw.apigw_app.roleBinding.name" . }}
+subjects:
+- kind: ServiceAccount
+  name: {{ include "apigw.apigw_app.serviceaccount.name" . }}
+roleRef:
+  kind: Role
+  name: {{ include "apigw.apigw_app.role.name" . }}
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "apigw.apigw_app.serviceaccount.name" . }}
+  {{- if .Values.global.apigw.apigw_app.serviceAccount }}
+  {{- with .Values.global.apigw.apigw_app.serviceAccount.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- end }}
