@@ -31,3 +31,41 @@
       key: dbpwd
 {{- end }}
 {{- end }}
+
+{{- define "apigw.container_envs_db_settings" }}
+{{- $apigw_secret_db_settings := "" }}
+{{- if .Values.global.db_settings }}
+{{- $apigw_secret_db_settings = .Values.global.db_settings.secret }}
+{{- else }}
+{{- $apigw_secret_db_settings = nil }}
+{{- end }}
+{{- if $apigw_secret_db_settings.create }}
+{{- $secret_name := ( include "apigw.postgresSettingsSecretName" . ) }}
+- name: APIGW_POSTGRESQL_SETTINGS_HOST
+  valueFrom:
+    secretKeyRef:
+      name: {{ $secret_name }}
+      key: dbhost
+- name: APIGW_POSTGRESQL_SETTINGS_PORT
+  valueFrom:
+    secretKeyRef:
+      name: {{ $secret_name }}
+      key: dbport
+- name: APIGW_POSTGRESQL_SETTINGS_NAME
+  valueFrom:
+    secretKeyRef:
+      name: {{ $secret_name }}
+      key: dbname
+- name: APIGW_POSTGRESQL_SETTINGS_USERNAME
+  valueFrom:
+    secretKeyRef:
+      name: {{ $secret_name }}
+      key: dbuser
+- name: APIGW_POSTGRESQL_SETTINGS_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ $secret_name }}
+      key: dbpwd
+{{- end }}
+{{- end }}
+

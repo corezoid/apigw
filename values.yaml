@@ -61,7 +61,6 @@ global:
           client_id: 'SA_CLIENT_ID'
           # Single-account client secret, check README.md file
           client_secret: 'SA_CLIENT_SECRET'
-          redirect_http_host: 'https://${APIGW_FRONTEND_HOST}/'
         api_server:
           listen_host: '0.0.0.0'
           listen_port: 8080
@@ -74,10 +73,6 @@ global:
           host_delimiter: '.'
           ready_path: '/ready'
           corezoid:
-            # Corezoid apikey login
-            admin_login: 777
-            # Corezoid apikey secret
-            admin_secret: 'NHpUvs1AbiP9GO0FKuxVL5fxzTgP5PFrwBw4Ndp4BaJL8ZT6FE'
             http_host: 'https://${APIGW_COREZOID_HOST}'
           cors:
             allowed_origins: ['*']
@@ -97,15 +92,6 @@ global:
       frontend_subDomain: "apigw"
       # Sub-domian for APIGW SyncAPI
       sync_subDomain: "sync-apigw"
-    apigw_frontend:
-      # Can set imagePullPolicy for frontend image only, or use from .global
-      imagePullPolicy: IfNotPresent
-      autoscaling:
-        # true - secret will be created automaticaly with provided values
-      # false - secret should be created manualy
-        enabled: true
-        minReplicas: 2
-        maxReplicas: 10
   sa:
     # Sub-domian for Single-Account service
     subDomain: "account"
@@ -125,6 +111,19 @@ global:
         dbuser: "apigw_user"
         # PostgreSQL database application password
         dbpwd: "APP_DB_PASSWORD"
+  db_settings:
+    internal: false
+    secret:
+      ## true - secret will be created automaticaly with provided values
+      ## false - secret should be created manualy
+      name: "postgresql-settings-secret"
+      create: true
+      data:
+        dbhost: "DB_HOST"
+        dbport: "5432"
+        dbname: "settings"
+        dbuser: "COREZOID_DB_USER"
+        dbpwd: "COREZOID_DB_PASSWORD"
   redis:
     internal: true
     secret:

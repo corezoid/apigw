@@ -1,3 +1,2 @@
-Main page: https://{{ include "apigw.hosts.frontend" . }}
 Callback url: https://{{ include "apigw.hosts.callback_server" . }}
 SyncAPI url: https://{{ include "apigw.hosts.sync" . }}

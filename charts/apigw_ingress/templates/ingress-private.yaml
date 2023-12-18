@@ -1,3 +1,4 @@
+{{- $global := .Values.global -}}
 {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1
 {{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
@@ -46,16 +47,6 @@ spec:
                 port:
                   number: {{ include "apigw.apigw_app.port.proxy_server.Number" . }}
 {{- end }}
-    - host: {{ include "apigw.hosts.frontend" . }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: apigw-frontend-service
-                port:
-                  number: 80
     - host: {{ include "apigw.hosts.sync" . }}
       http:
         paths:

@@ -40,6 +40,9 @@ spec:
           args: ["--config", "/apigw/apigw.json"]
           env:
             {{- include "apigw.container_envs_db" . | indent 12 }}
+            {{- if .Values.global.db_settings }}
+            {{- include "apigw.container_envs_db_settings" . | indent 12 }}
+            {{- end }}
             {{- include "apigw.container_envs_redis" . | indent 12 }}
             {{- include "apigw.container_envs_host" . | indent 12 }}
             {{- if $cfg.gopsagent }}
