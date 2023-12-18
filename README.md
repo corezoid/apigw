@@ -8,8 +8,6 @@ You need next domains:
 
 `cb-apigw.example.com` - domain for call-back
 
-`apigw.example.com` - UI
-
 Also use `*.apigw.example.com` for users api.
 
 Require valid SSL certificate for these domains.
@@ -46,5 +44,3 @@ response
 	"scope":"read"
 }
 ```
-
-Also need `admin_login` and `admin_secret` - api key of corezoid superadmin.

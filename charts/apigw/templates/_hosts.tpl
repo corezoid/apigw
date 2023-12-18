@@ -13,10 +13,6 @@ Define ApiGW hosts
 {{ .Values.global.apigw.apigw_app.api_server_subDomain }}.{{ .Values.global.domain }}
 {{- end -}}
 
-{{- define "apigw.hosts.frontend" -}}
-{{ .Values.global.apigw.apigw_app.frontend_subDomain }}.{{ .Values.global.domain }}
-{{- end -}}
-
 {{- define "apigw.hosts.sync" -}}
 {{ .Values.global.apigw.apigw_app.sync_subDomain }}.{{ .Values.global.domain }}
 {{- end -}}

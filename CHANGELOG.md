@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## Chart 2.2.3 [ApiGW 1.7.2] - 2023-12-15
+### Helm changes
+- Applications versions:
+    - apigw - 1.7.2
+    - redis - 1.0.1
+- Remove apigw-frotend. Frontend part moved to Simulator UI.
+- Remove `proxy_server.corezoid.admin_login` and `proxy_server.corezoid.admin_secret`
+- Added `db_settings` block for connect into corezoid setyings database.
+- Subcharts refactoring
+
 ## Chart 2.2.0 [ApiGW 1.7.1] - 2023-10-20
 ### Helm changes
 - Applications versions:

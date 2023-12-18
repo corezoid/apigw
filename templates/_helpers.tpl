@@ -13,6 +13,11 @@
 {{ .Release.Name }}-apigw-{{ .Values.global.db.secret.name }}
 {{- end }}
 
+{{/* Define postgres settings secret name */}}
+{{- define "apigw.postgresSettingsSecretName" -}}
+{{ .Release.Name }}-apigw-{{ .Values.global.db_settings.secret.name }}
+{{- end }}
+
 {{- define "apigw.postgresSecretAnnotations" -}}
 {{ if .Values.global.apigw.secret.postgres.annotations -}}
 {{ toYaml .Values.global.apigw.secret.postgres.annotations }}
