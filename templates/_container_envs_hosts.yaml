@@ -11,4 +11,8 @@
   value: {{ include "apigw.hosts.sa" . }}
 - name: APIGW_COREZOID_HOST
   value: {{ include "apigw.hosts.corezoid" . }}
+{{ if .Values.global.apigw.connect_enabled -}}
+- name: APIGW_CONNECT_SERVER_TUNNEL_HOST
+  value: {{ include "apigw.hosts.connect_server_tunnel" . | quote }}
+{{ end -}}
 {{- end }}

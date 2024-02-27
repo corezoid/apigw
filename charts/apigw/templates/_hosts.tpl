@@ -28,3 +28,16 @@ Define ApiGW hosts
 {{ .Values.global.subdomain }}.{{ .Values.global.domain }}
 {{- end -}}
 {{- end -}}
+
+
+{{- define "apigw.hosts.connect_server_tunnel" -}}
+{{ if .Values.global.apigw.connect_enabled -}}
+{{ .Values.global.apigw.apigw_app.connect_server_tunnel_subDomain }}.{{ .Values.global.domain -}}
+{{ end -}}
+{{- end -}}
+
+{{- define "apigw.hosts.connect_server_proxy" -}}
+{{ if .Values.global.apigw.connect_enabled -}}
+{{ .Values.global.apigw.apigw_app.connect_server_proxy_subDomain }}.{{ .Values.global.domain -}}
+{{ end -}}
+{{- end -}}

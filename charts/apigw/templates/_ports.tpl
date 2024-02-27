@@ -117,3 +117,49 @@ metrics
 {{- define "apigw.apigw_app.port.metrics.Protocol" -}}
 TCP
 {{- end }}
+
+{{/*
+Define ApiGW connect_server_tunnel port
+*/}}
+{{- define "apigw.apigw_app.port.connect_server_tunnel.Number" -}}
+{{ if .Values.global.apigw.connect_enabled -}}
+{{ .Values.global.apigw.apigw_app.config.connect_server.tunnel.listen_port }}
+{{- else }}
+{{- printf "%s" 8887 }}
+{{- end -}}
+{{- end }}
+
+{{- define "apigw.apigw_app.port.connect_server_tunnel.Name" -}}
+{{ if .Values.global.apigw.connect_enabled -}}
+tunnel
+{{- end }}
+{{- end }}
+
+{{- define "apigw.apigw_app.port.connect_server_tunnel.Protocol" -}}
+{{ if .Values.global.apigw.connect_enabled -}}
+TCP
+{{- end }}
+{{- end }}
+
+{{/*
+Define ApiGW connect_server_proxy port
+*/}}
+{{- define "apigw.apigw_app.port.connect_server_proxy.Number" -}}
+{{ if .Values.global.apigw.connect_enabled -}}
+{{ .Values.global.apigw.apigw_app.config.connect_server.proxy.listen_port }}
+{{- else }}
+{{- printf "%s" 8888 }}
+{{- end -}}
+{{- end }}
+
+{{- define "apigw.apigw_app.port.connect_server_proxy.Name" -}}
+{{ if .Values.global.apigw.connect_enabled -}}
+proxy
+{{- end }}
+{{- end }}
+
+{{- define "apigw.apigw_app.port.connect_server_proxy.Protocol" -}}
+{{ if .Values.global.apigw.connect_enabled -}}
+TCP
+{{- end }}
+{{- end }}
