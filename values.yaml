@@ -13,6 +13,7 @@ global:
     type: RollingUpdate
   product: "api-gw"
   apigw:
+    connect_enabled: false
     secret:
       postgres:
         annotations: {}
@@ -49,6 +50,14 @@ global:
           password: '${APIGW_POSTGRESQL_PASSWORD}'
           ssl:
             enabled: false
+        postgres_settings:
+          host: '${APIGW_POSTGRESQL_SETTINGS_HOST}'
+          port: 5432
+          database: '${APIGW_POSTGRESQL_SETTINGS_NAME}'
+          user: '${APIGW_POSTGRESQL_SETTINGS_USERNAME}'
+          password: '${APIGW_POSTGRESQL_SETTINGS_PASSWORD}'
+          ssl:
+            enabled: false
         redis:
           host: '${APIGW_REDIS_HOST}'
           port: 6379
@@ -73,6 +82,10 @@ global:
           host_delimiter: '.'
           ready_path: '/ready'
           corezoid:
+            # # Corezoid apikey login
+            # admin_login: 777
+            # # Corezoid apikey secret
+            # admin_secret: 'NHpUvs1AbiP9GO0FKuxVL5fxzTgP5PFrwBw4Ndp4BaJL8ZT6FE'
             http_host: 'https://${APIGW_COREZOID_HOST}'
           cors:
             allowed_origins: ['*']
@@ -82,6 +95,12 @@ global:
           listen_port: 8060
         metrics:
           listen_port: 9100
+        connect_server:
+          tunnel:
+            listen_port: 8888
+          proxy:
+            host: 'https://*.${APIGW_CONNECT_SERVER_TUNNEL_HOST}'
+            listen_port: 8887
       # Sub-domian for APIGW callback-server
       callback_server_subDomain: "cb-apigw"
       # Sub-domian for APIGW server-server, e.g. *.apigw.example.com
@@ -98,8 +117,8 @@ global:
   db:
     internal: false
     secret:
-    # true - secret will be created automaticaly with provided values
-    # false - secret should be created manualy
+      # true - secret will be created automaticaly with provided values
+      # false - secret should be created manualy
       name: "postgresql-secret"
       create: true
       data:
@@ -145,3 +164,5 @@ global:
       #   more_set_headers "Content-Security-Policy: default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: INSERT_DOMIANS_HERE";
   kube:
     affinity: {}
+  apigw_app:
+    tag: 1.8.1

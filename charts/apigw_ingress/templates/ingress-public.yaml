@@ -25,4 +25,26 @@ spec:
                 name: {{ include "apigw.apigw_app.service.name" . }}
                 port:
                   number: {{ include "apigw.apigw_app.port.proxy_server.Number" . }}
+{{- if .Values.global.apigw.connect_enabled }}
+    - host: {{ include "apigw.hosts.connect_server_tunnel" . }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "apigw.apigw_app.service.name" . }}
+                port:
+                  number: {{ include "apigw.apigw_app.port.connect_server_tunnel.Number" . }}
+    - host: '*.{{ include "apigw.hosts.connect_server_tunnel" . }}'
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "apigw.apigw_app.service.name" . }}
+                port:
+                  number: {{ include "apigw.apigw_app.port.connect_server_proxy.Number" . }}
+{{- end }}
 {{- end -}}

@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## Chart 2.2.4 [ApiGW 1.8.1] - 2024-02-28
+### Helm changes
+- Applications versions:
+    - apigw - 1.8.1
+    - redis - 1.0.1
+- Helm chart refactoring
+
 ## Chart 2.2.3 [ApiGW 1.7.2] - 2023-12-15
 ### Helm changes
 - Applications versions:

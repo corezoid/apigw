@@ -38,3 +38,13 @@ spec:
       protocol: {{ include "apigw.apigw_app.port.metrics.Protocol" . }}
 {{- end }}
 {{- end }}
+{{- if .Values.global.apigw.connect_enabled }}
+    - name: {{ include "apigw.apigw_app.port.connect_server_tunnel.Name" . }}
+      port: {{ include "apigw.apigw_app.port.connect_server_tunnel.Number" . }}
+      targetPort: {{ include "apigw.apigw_app.port.connect_server_tunnel.Number" . }}
+      protocol: {{ include "apigw.apigw_app.port.connect_server_tunnel.Protocol" . }}
+    - name: {{ include "apigw.apigw_app.port.connect_server_proxy.Name" . }}
+      port: {{ include "apigw.apigw_app.port.connect_server_proxy.Number" . }}
+      targetPort: {{ include "apigw.apigw_app.port.connect_server_proxy.Number" . }}
+      protocol: {{ include "apigw.apigw_app.port.connect_server_proxy.Protocol" . }}
+{{- end }}
