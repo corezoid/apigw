@@ -163,3 +163,28 @@ proxy
 TCP
 {{- end }}
 {{- end }}
+
+
+{{/*
+Define ApiGW task_api_server port
+*/}}
+{{- define "apigw.apigw_app.port.task_api_server.Number" -}}
+{{ if .Values.global.apigw.apigw_app.config.task_api_server -}}
+{{ .Values.global.apigw.apigw_app.config.task_api_server.listen_port }}
+{{- else }}
+{{- printf "%s" 8082 }}
+{{- end -}}
+{{- end }}
+
+{{- define "apigw.apigw_app.port.task_api_server.Name" -}}
+{{ if .Values.global.apigw.apigw_app.config.task_api_server -}}
+taskapi
+{{- end }}
+{{- end }}
+
+{{- define "apigw.apigw_app.port.task_api_server.Protocol" -}}
+{{ if .Values.global.apigw.apigw_app.config.task_api_server -}}
+TCP
+{{- end }}
+{{- end }}
+

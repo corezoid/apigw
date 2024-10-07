@@ -41,3 +41,9 @@ Define ApiGW hosts
 {{ .Values.global.apigw.apigw_app.connect_server_proxy_subDomain }}.{{ .Values.global.domain -}}
 {{ end -}}
 {{- end -}}
+
+{{- define "apigw.hosts.task_api_server" -}}
+{{ if .Values.global.apigw.apigw_app.task_api_server_subDomain -}}
+{{ .Values.global.apigw.apigw_app.task_api_server_subDomain }}.{{ .Values.global.domain -}}
+{{ end -}}
+{{- end -}}

@@ -1,0 +1,58 @@
+groups:
+- name: apigw
+  rules:
+  - alert: ApiGwErrorRateHigh
+    for: 5m
+    annotations:
+      summary: Overall error rate is above 5%.
+      description: |
+        ApiGW in {{ $labels.namespace }} namespace has > 5% errors of overall requests during 5min.
+      runbook_url: >-
+        https://bookstack.corezoid.com/books/runbooks/page/apigwerrorratehigh
+    expr: sum(rate(proxy_http_request_duration_seconds_count{code=~'4..|5..'}[5m])) by (namespace) / sum(rate(proxy_http_request_duration_seconds_count[5m])) by (namespace) > 0.05 OR sum(rate(sync_api_http_request_duration_seconds_count{code=~'4..|5..'}[5m])) by (namespace) / sum(rate(sync_api_http_request_duration_seconds_count[5m])) by (namespace) > 0.05
+    labels:
+      severity: critical
+  - alert: ApiGwProxyErrorRateHigh
+    for: 5m
+    annotations:
+      summary: Error rate on HTTP endpoints above 5%.
+      description: |
+        ApiGW API path "{{ $labels.path }}" in {{ $labels.namespace }} namespace returns "{{ $labels.code }}" HTTP code for more than 5% of overall requests during 5 min.
+      runbook_url: >-
+        https://bookstack.corezoid.com/books/runbooks/page/apigwproxyerrorratehigh
+    expr: sum(rate(proxy_http_request_duration_seconds_count{code=~'4..|5..'}[5m])) by (code,path,namespace) / sum(rate(proxy_http_request_duration_seconds_count[5m])) by (code,path,namespace) > 0.05
+    labels:
+      severity: warning
+  - alert: ApiGwProxyErrorRateHigh
+    for: 5m
+    annotations:
+      summary: Error rate on HTTP endpoints above 20%.
+      description: |
+        ApiGW API path "{{ $labels.path }}" in {{ $labels.namespace }} namespace returns "{{ $labels.code }}" HTTP code for more than 20% of overall requests during 5 min.
+      runbook_url: >-
+        https://bookstack.corezoid.com/books/runbooks/page/apigwproxyerrorratehigh
+    expr: sum(rate(proxy_http_request_duration_seconds_count{code=~'4..|5..'}[5m])) by (code,path,namespace) / sum(rate(proxy_http_request_duration_seconds_count[5m])) by (code,path,namespace) > 0.2
+    labels:
+      severity: critical
+  - alert: ApiGwSyncApiErrorRateHigh
+    for: 5m
+    annotations:
+      summary: Error rate on Corezoid login endpoints above 5%.
+      description: |
+        ApiGW login "{{ $labels.login }}" in {{ $labels.namespace }} namespace returns "{{ $labels.code }}" HTTP code for more than 5% of overall requests during 5 min.
+      runbook_url: >-
+        https://bookstack.corezoid.com/books/runbooks/page/apigwsyncapierrorratehigh
+    expr: sum(rate(sync_api_http_request_duration_seconds_count{code=~'4..|5..'}[5m])) by (code,login,namespace) / sum(rate(sync_api_http_request_duration_seconds_count[5m])) by (code,login,namespace) > 0.05
+    labels:
+      severity: warning
+  - alert: ApiGwSyncApiErrorRateHigh
+    for: 5m
+    annotations:
+      summary: Error rate on Corezoid login endpoints above 20%.
+      description: |
+        ApiGW login "{{ $labels.login }}" in {{ $labels.namespace }} namespace returns "{{ $labels.code }}" HTTP code for more than 20% of overall requests during 5 min.
+      runbook_url: >-
+        https://bookstack.corezoid.com/books/runbooks/page/apigwsyncapierrorratehigh
+    expr: sum(rate(sync_api_http_request_duration_seconds_count{code=~'4..|5..'}[5m])) by (code,login,namespace) / sum(rate(sync_api_http_request_duration_seconds_count[5m])) by (code,login,namespace) > 0.2
+    labels:
+      severity: critical

@@ -3,17 +3,51 @@ global:
   domain: "example.com"
   # subdomain / sitename - prod.example.com (example: prod), if no sub-domain, then set blank (subdomain: "")
   subdomain: "prod"
-  imageRegistry: docker-hub.middleware.biz
-  imagePullPolicy: Always
-  repotype: public
   # Enable or disable Service or Pod Monitor, if not set then use serviceMonitor.enabled: false
   serviceMonitor:
+    enabled: true
+  # Dashboard configuration for deploying Grafana dashboards for ApiGW
+  dashboards:
+    # -- If enabled, Grafana dashboards are deployed
     enabled: false
+    # -- Annotations to add to the Grafana dashboard ConfigMap
+    # Note: If using with middleware observability platform, annotation should be provided to place dashboards in proper folder.
+    # From observability chart, value from grafana.sidecar.dashboards.folderAnnotation is a
+    # "key" for annotation, and value is a name of folder which will be created in Grafana UI for ApiGW dashboards.
+    annotations: {}
+    # -- Labels to add to the Grafana dashboard ConfigMap
+    # Note: If using with middleware observability platform, labels should be provided to discovery
+    # dashboards and upload them to grafana. From observability chart, value from grafana.sidecar.dashboards.label is a key,
+    # and grafana.sidecar.dashboards.labelValue is a value for that label.
+    # So, label should looks like grafana.sidecar.dashboards.label:grafana.sidecar.dashboards.labelValue
+    labels: {}
+  alerts:
+    # - If true, deploys alertmanager alerts and rules for ApiGW.
+    enabled: false
+    # -- PrometheusRule annotations
+    annotations: {}
+    # -- Additional PrometheusRule labels.
+    #Note: If using with middleware observability platform, to find out what your CRD expects,
+    # track k8s-monitoring.extraConfig param for mimir.rules.kubernetes.rule_selector component block at observability chart.
+    # Ref: https://git.corezoid.com/devops/kubernetes/helm/observability/observability
+    labels: {}
+    # -- prometheusRule namespace. If using with middleware observability platform, to find out what your CRD expects,
+    # track k8s-monitoring.extraConfig param for mimir.rules.kubernetes.rule_namespace_selector component block at observability chart.
+    # Ref: https://git.corezoid.com/devops/kubernetes/helm/observability/observability
+    namespace: ""
+
+  imageRegistry: hub.corezoid.com
+  imagePullPolicy: Always
+  repotype: public
   deploymentStrategy:
     type: RollingUpdate
   product: "api-gw"
+  imageInit:
+    repository: hub.corezoid.com/hub.docker.com/library/alpine
+    pullPolicy: IfNotPresent
+    tag: "3.20.1"
   apigw:
-    connect_enabled: false
+    connect_enabled: true
     secret:
       postgres:
         annotations: {}
@@ -22,13 +56,15 @@ global:
       # imagePullPolicy: IfNotPresent
       minReplicas: 2
       maxReplicas: 4
-      resources:
-        limits:
-          memory: 500Mi
-        requests:
-          cpu: 200m
-          memory: 200Mi
+      resources: {}
+      # resources:
+      #   limits:
+      #     memory: 500Mi
+      #   requests:
+      #     cpu: 200m
+      #     memory: 200Mi
       config:
+        log_level: 'info'
         sync_api_server:
           listen_port: 8081
         callback_server:
@@ -70,6 +106,8 @@ global:
           client_id: 'SA_CLIENT_ID'
           # Single-account client secret, check README.md file
           client_secret: 'SA_CLIENT_SECRET'
+          redirect_http_host: 'https://${APIGW_FRONTEND_HOST}/'
+          admin_bearer_token_secret: "ADMIN_BEARER_TOKEN_SECRET"
         api_server:
           listen_host: '0.0.0.0'
           listen_port: 8080
@@ -82,14 +120,14 @@ global:
           host_delimiter: '.'
           ready_path: '/ready'
           corezoid:
-            # # Corezoid apikey login
-            # admin_login: 777
-            # # Corezoid apikey secret
-            # admin_secret: 'NHpUvs1AbiP9GO0FKuxVL5fxzTgP5PFrwBw4Ndp4BaJL8ZT6FE'
             http_host: 'https://${APIGW_COREZOID_HOST}'
           cors:
             allowed_origins: ['*']
-          use_deprecated_task_format: true
+          # Set false for new install, for old install with Sync-APi set true
+          use_deprecated_task_format: false
+        # if set will as Tasks manager too.
+        task_api_server:
+          listen_port: 8082
         health_server:
           listen_host: '0.0.0.0'
           listen_port: 8060
@@ -111,6 +149,15 @@ global:
       frontend_subDomain: "apigw"
       # Sub-domian for APIGW SyncAPI
       sync_subDomain: "sync-apigw"
+      connect_server_tunnel_subDomain: "connect"
+      connect_server_proxy_subDomain: "*.connect"
+      # if set config.task_api_server then need set subDomain for Tasks manager
+      task_api_server_subDomain: "task-apigw"
+      serviceAccount:
+        create: true
+        # You can provide your serviceAccount name to use, also set create to false
+        # name: ""
+        annotations: {}
   sa:
     # Sub-domian for Single-Account service
     subDomain: "account"
@@ -130,6 +177,17 @@ global:
         dbuser: "apigw_user"
         # PostgreSQL database application password
         dbpwd: "APP_DB_PASSWORD"
+    bouncer: false
+    bouncer_minReplicas: 1
+    bouncer_maxReplicas: 2
+    bouncer_resources:
+      limits:
+        cpu: "500m"
+        memory: "500Mi"
+      requests:
+        cpu: "100m"
+        memory: "100Mi"
+    bouncer_log_level: debug
   db_settings:
     internal: false
     secret:
@@ -149,20 +207,17 @@ global:
       name: "redis"
       create: true
       data:
-        host: "apigw-redis"
+        host: "apigw-redis-service"
         port: "6379"
         password: "REDIS_PASSWORD"
+  valkey: {}
   ingress:
     className: nginx
-    annotations:
-      ingress.class: nginx
-      # nginx.ingress.kubernetes.io/configuration-snippet: |
-      #   more_set_headers X-Content-Type-Options "nosniff" always;
-      #   more_set_headers X-Frame-Options "SAMEORIGIN" always;
-      #   add_header X-Content-Type-Options nosniff;
-      #   more_set_headers Referrer-Policy "no-referrer-when-downgrade" always;
-      #   more_set_headers "Content-Security-Policy: default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: INSERT_DOMIANS_HERE";
+    annotations: {}
+    # annotations:
+    #   ingress.class: nginx
+    #   nginx.ingress.kubernetes.io/proxy-body-size: 3m
   kube:
     affinity: {}
   apigw_app:
-    tag: 1.8.1
+    tag: 1.9.2

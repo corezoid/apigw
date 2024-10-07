@@ -27,10 +27,73 @@ spec:
     spec:
       # equal to ProxyServer.ReadTimeoutSec+ProxyServer.MaxCallbackWaitSec+20
       terminationGracePeriodSeconds: 80
-      {{- if not (eq .Values.global.repotype "public") }}
+      {{- if .Values.global.imagePullSecrets }}
       imagePullSecrets:
-        - name: {{ .Values.global.imagePullSecrets.name }}
+      {{- range $pullSecret := .Values.global.imagePullSecrets }}
+        - name: {{ $pullSecret }}
       {{- end }}
+      {{- end }}
+      initContainers:
+        - name: init-wait-resolve-redis
+          image: {{ .Values.global.imageInit.repository }}:{{ .Values.global.imageInit.tag }}
+          imagePullPolicy: IfNotPresent
+          command: ["sh"]
+          args:
+            - "-c"
+            - |
+              until IP=$(nslookup ${APIGW_REDIS_HOST} 2>/dev/null | grep "Address: " | sed 's/.*: //g;s/ .*//g'); [ -n "$IP" ]; do
+                echo "Waiting for Redis IP resolution";
+                sleep 2;
+              done
+          env:
+            {{- include "apigw.container_envs_redis" . | indent 12 }}
+
+        - name: init-wait-redis-port
+          image: {{ .Values.global.imageInit.repository }}:{{ .Values.global.imageInit.tag }}
+          imagePullPolicy: IfNotPresent
+          command: ["sh"]
+          args:
+            - "-c"
+            - |
+              until nc -zw1 ${APIGW_REDIS_HOST} ${APIGW_REDIS_PORT}; do
+                echo "Waiting for Redis port";
+                sleep 2;
+              done
+          env:
+            {{- include "apigw.container_envs_redis" . | indent 12 }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+
+        - name: init-wait-resolve-pgbouncer
+          image: {{ .Values.global.imageInit.repository }}:{{ .Values.global.imageInit.tag }}
+          imagePullPolicy: IfNotPresent
+          command: ["sh"]
+          args:
+            - "-c"
+            - |
+              until IP=$(nslookup ${APIGW_POSTGRESQL_HOST} 2>/dev/null | grep "Address: " | sed 's/.*: //g;s/ .*//g'); [ -n "$IP" ]; do
+                echo "Waiting for PgBouncer IP resolution";
+                sleep 2;
+              done
+          env:
+            {{- include "apigw.container_envs_db" . | indent 12 }}
+
+        - name: init-wait-pgbouncer-port
+          image: {{ .Values.global.imageInit.repository }}:{{ .Values.global.imageInit.tag }}
+          imagePullPolicy: IfNotPresent
+          command: ["sh"]
+          args:
+            - "-c"
+            - |
+              until nc -zw1 ${APIGW_POSTGRESQL_HOST} ${APIGW_POSTGRESQL_PORT}; do
+                echo "Waiting for PgBouncer port";
+                sleep 2;
+              done
+          env:
+            {{- include "apigw.container_envs_db" . | indent 12 }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+
       serviceAccountName: {{ include "apigw.apigw_app.serviceaccount.name" . }}
       containers:
         - name: {{ .Chart.Name }}
@@ -87,6 +150,11 @@ spec:
               containerPort: {{ include "apigw.apigw_app.port.connect_server_proxy.Number" . }}
               protocol: {{ include "apigw.apigw_app.port.connect_server_proxy.Protocol" . }}
             {{- end }}
+            {{- if .Values.global.apigw.apigw_app.config.task_api_server }}
+            - name: {{ include "apigw.apigw_app.port.task_api_server.Name" . }}
+              containerPort: {{ include "apigw.apigw_app.port.task_api_server.Number" . }}
+              protocol: {{ include "apigw.apigw_app.port.task_api_server.Protocol" . }}
+            {{- end }}
           volumeMounts:
             - name: config
               mountPath: /apigw/{{ .Values.config_file }}
@@ -98,8 +166,8 @@ spec:
             {{- end }}
             {{- end }}
           securityContext:
-            runAsUser: 501
-            runAsGroup: 501
+            runAsUser: 1001
+            runAsGroup: 1001
             runAsNonRoot: true
             readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
@@ -136,7 +204,7 @@ spec:
             failureThreshold: 3
         {{- if $d.debug_container }}
         - name: 'debug'
-          image: 'docker-hub.middleware.biz/hub.docker.com/library/alpine:3.18'
+          image: 'hub.corezoid.com/hub.docker.com/library/alpine:3.20.1'
           command: [ "/bin/sh" ]
           args: [ "-c", "while true; do sleep 5;done" ]
           resources:
@@ -154,5 +222,9 @@ spec:
           emptyDir: {}
       {{- with .Values.global.apigw.affinity }}
       affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.apigw.tolerations }}
+      tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}

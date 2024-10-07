@@ -79,3 +79,15 @@ spec:
                 port:
                   number: {{ include "apigw.apigw_app.port.connect_server_proxy.Number" . }}
 {{- end }}
+{{- if .Values.global.apigw.apigw_app.task_api_server_subDomain }}
+    - host: {{ include "apigw.hosts.task_api_server" . }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "apigw.apigw_app.service.name" . }}
+                port:
+                  number: {{ include "apigw.apigw_app.port.task_api_server.Number" . }}
+{{- end }}
