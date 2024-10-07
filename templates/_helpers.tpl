@@ -36,3 +36,8 @@ monitoring.coreos.com/v1
 {{- define "common.ServiceMonitor.metadata.labes" -}}
 simulator.observability/scrape: "true"
 {{- end -}}
+
+{{/* Define valkey secret name */}}
+{{- define "apigw.valkeySecretName" -}}
+{{ .Release.Name }}-apigw-{{ .Values.global.valkey.secret.name }}-secret
+{{- end }}

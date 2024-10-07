@@ -48,3 +48,9 @@ spec:
       targetPort: {{ include "apigw.apigw_app.port.connect_server_proxy.Number" . }}
       protocol: {{ include "apigw.apigw_app.port.connect_server_proxy.Protocol" . }}
 {{- end }}
+{{- if .Values.global.apigw.apigw_app.config.task_api_server }}
+    - name: {{ include "apigw.apigw_app.port.task_api_server.Name" . }}
+      port: {{ include "apigw.apigw_app.port.task_api_server.Number" . }}
+      targetPort: {{ include "apigw.apigw_app.port.task_api_server.Number" . }}
+      protocol: {{ include "apigw.apigw_app.port.task_api_server.Protocol" . }}
+{{- end }}

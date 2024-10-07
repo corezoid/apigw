@@ -1,20 +1,21 @@
----
+{{- if and (hasKey .Values.global "valkey") (not (empty .Values.global.valkey)) }}
+{{- if .Values.global.valkey.use }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-{{ .Values.appName }}-config
+  name: apigw-valkey-config
   labels:
-    {{- include "redis.labels" . | nindent 4 }}
+    {{- include "apigw.valkey.labels" . | nindent 4 }}
 data:
-  redis.conf: |
-    pidfile /var/run/redis.pid
+  valkey.conf: |
+    pidfile /var/run/valkey.pid
     port {{ .Values.appPort }}
     tcp-backlog 511
     bind 0.0.0.0
     timeout 0
     tcp-keepalive 0
     loglevel notice
-    #logfile /tmp/redis.log
+    #logfile /tmp/valkey.log
     logfile ""
     databases 16
     stop-writes-on-bgsave-error yes
@@ -26,7 +27,7 @@ data:
     slave-read-only yes
     repl-disable-tcp-nodelay no
     slave-priority 100
-    requirepass {{ .Values.global.redis.secret.data.password }}
+    requirepass {{ .Values.global.valkey.secret.data.password }}
     maxclients 50000
     appendonly yes
     save 900 1
@@ -55,3 +56,5 @@ data:
     client-output-buffer-limit pubsub 32mb 8mb 60
     hz 10
     aof-rewrite-incremental-fsync yes
+{{- end }}
+{{- end }}

@@ -1,0 +1,16 @@
+{{- if and (hasKey .Values.global "valkey") (not (empty .Values.global.valkey)) }}
+{{- if .Values.global.valkey.use }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: apigw-valkey-service
+  labels:
+    {{- include "apigw.valkey.labels" . | nindent 4 }}
+spec:
+  ports:
+  - port: {{ .Values.appPort }}
+    targetPort: {{ .Values.appPort }}
+  selector:
+    {{- include "apigw.valkey.labels" . | nindent 4 }}
+{{- end }}
+{{- end }}

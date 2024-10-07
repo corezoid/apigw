@@ -1,0 +1,18 @@
+{{- if and (hasKey .Values.global "valkey") (not (empty .Values.global.valkey)) }}
+{{- if not .Values.global.valkey.use }}
+{{- if eq .Values.global.redis.internal true }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: apigw-redis-service
+  labels:
+    {{- include "apigw.redis.labels" . | nindent 4 }}
+spec:
+  ports:
+  - port: {{ .Values.appPort }}
+    targetPort: {{ .Values.appPort }}
+  selector:
+    {{- include "apigw.redis.labels" . | nindent 4 }}
+{{- end }}
+{{- end }}
+{{- end }}

@@ -1,28 +1,60 @@
 {{- define "apigw.container_envs_redis" }}
-{{- $apigw_secret_redis := "" }}
-{{- if .Values.global.apigw.redis }}
-{{- $apigw_secret_redis = .Values.global.apigw.redis.secret }}
-{{- else if .Values.global.redis }}
-{{- $apigw_secret_redis = .Values.global.redis.secret }}
+
+{{- $apigw_secret_storage := "" }}
+
+{{- if .Values.global.valkey }}
+  {{- if .Values.global.valkey.use }}
+    {{- if .Values.global.apigw.valkey }}
+
+      {{- $apigw_secret_storage = .Values.global.apigw.valkey.secret }}
+
+    {{- else if .Values.global.valkey }}
+      {{- $apigw_secret_storage = .Values.global.valkey.secret }}
+    {{- else }}
+
+      {{- $apigw_secret_storage = nil }}
+
+    {{- end }}
+
+  {{- end }}
+
 {{- else }}
-{{- $apigw_secret_redis = nil }}
+
+  {{- if .Values.global.apigw.redis }}
+  {{- $apigw_secret_storage = .Values.global.apigw.redis.secret }}
+
+  {{- else if .Values.global.redis }}
+    {{- $apigw_secret_storage = .Values.global.redis.secret }}
+  {{- else }}
+    {{- $apigw_secret_storage = nil }}
+  {{- end }}
 {{- end }}
-{{- if $apigw_secret_redis.create }}
-{{- $secret_name_redis := ( include "apigw.redisSecretName" . ) }}
+
+
+{{- if $apigw_secret_storage.create }}
+{{- $secret_name_storage := "" }}
+
+{{- if .Values.global.valkey }}
+{{- if .Values.global.valkey.use }}
+{{- $secret_name_storage = ( include "apigw.valkeySecretName" . ) }}
+{{- end }}
+{{- else }}
+{{- $secret_name_storage = ( include "apigw.redisSecretName" . ) }}
+{{- end }}
 - name: APIGW_REDIS_HOST
   valueFrom:
     secretKeyRef:
-      name: {{ $secret_name_redis }}
+      name: {{ $secret_name_storage }}
       key: host
 - name: APIGW_REDIS_PORT
   valueFrom:
     secretKeyRef:
-      name: {{ $secret_name_redis }}
+      name: {{ $secret_name_storage }}
       key: port
 - name: APIGW_REDIS_PASSWORD
   valueFrom:
     secretKeyRef:
-      name: {{ $secret_name_redis }}
+      name: {{ $secret_name_storage }}
       key: password
 {{- end }}
 {{- end }}
