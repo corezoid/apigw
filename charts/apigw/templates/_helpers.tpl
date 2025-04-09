@@ -14,11 +14,11 @@ Image url
 {{- end }}
 
 {{- define "module.apigw_app.name" -}}
-{{ include "module.apigw.name" . }}-{{- default "apigw-app" .Values.global.apigw.apigw_app.name | trunc 63 | trimSuffix "-" }}
+{{ include "module.name" . }}-{{- default "apigw-app" .Values.global.apigw.apigw_app.name | trunc 63 | trimSuffix "-" }}
 {{- end -}}
 
 {{- define "apigw.apigw_app.service.name" -}}
-{{- include "module.apigw_app.name" . }}-service
+{{- include "module.apigw_app.name" . }}
 {{- end -}}
 
 {{- define "apigw.apigw_app.configmap.name" -}}
@@ -26,19 +26,19 @@ Image url
 {{- end -}}
 
 {{- define "apigw.apigw_app.deployment.name" -}}
-{{- include "module.apigw_app.name" . }}-deployment
+{{- include "module.apigw_app.name" . }}
 {{- end -}}
 
 {{- define "apigw.apigw_app.role.name" -}}
-{{- include "module.apigw_app.name" . }}-role
+{{- include "module.apigw_app.name" . }}
 {{- end -}}
 
 {{- define "apigw.apigw_app.roleBinding.name" -}}
-{{- include "module.apigw_app.name" . }}-roleBinding
+{{- include "module.apigw_app.name" . }}
 {{- end -}}
 
 {{- define "apigw.apigw_app.serviceaccount.name" -}}
-{{- include "module.apigw_app.name" . }}-serviceaccount
+{{- include "module.apigw_app.name" . }}
 {{- end -}}
 
 

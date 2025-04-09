@@ -36,6 +36,16 @@ spec:
                 port:
                   number: {{ include "apigw.apigw_app.port.callback_server.Number" . }}
 {{- if not .Values.global.ingress_public }}
+    - host: {{ include "apigw.hosts.frontend" . }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: apigw-frontend-service
+                port:
+                  number: 80
     - host: '*.{{ include "apigw.hosts.proxy_server" . }}'
       http:
         paths:
@@ -78,16 +88,4 @@ spec:
                 name: {{ include "apigw.apigw_app.service.name" . }}
                 port:
                   number: {{ include "apigw.apigw_app.port.connect_server_proxy.Number" . }}
-{{- end }}
-{{- if .Values.global.apigw.apigw_app.task_api_server_subDomain }}
-    - host: {{ include "apigw.hosts.task_api_server" . }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ include "apigw.apigw_app.service.name" . }}
-                port:
-                  number: {{ include "apigw.apigw_app.port.task_api_server.Number" . }}
 {{- end }}

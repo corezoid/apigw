@@ -1,29 +1,25 @@
-{{- if and (hasKey .Values.global "valkey") (not (empty .Values.global.valkey)) }}
-{{- if not .Values.global.valkey.use }}
 {{- if eq .Values.global.redis.internal true }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: apigw-redis-deployment
+  name: {{ .Release.Name }}-{{ .Values.appName }}
   labels:
-    {{- include "apigw.redis.labels" . | nindent 4 }}
+    {{- include "redis.labels" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
-      {{- include "apigw.redis.labels" . | nindent 6 }}
+      {{- include "redis.labels" . | nindent 6 }}
   replicas: 1
   template:
     metadata:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap-redis.yaml") . | sha256sum }}
       labels:
-        {{- include "apigw.redis.labels" . | nindent 8 }}
+        {{- include "redis.labels" . | nindent 8 }}
     spec:
-      {{- if .Values.global.imagePullSecrets }}
+      {{- if not (eq .Values.global.repotype "public") }}
       imagePullSecrets:
-      {{- range $pullSecret := .Values.global.imagePullSecrets }}
-        - name: {{ $pullSecret }}
-      {{- end }}
+        - name: {{ .Values.global.imagePullSecrets.name }}
       {{- end }}
       containers:
       - name: master
@@ -61,15 +57,5 @@ spec:
       volumes:
         - name: redisconfig
           configMap:
-            name: apigw-redis-config
-      {{- with .Values.global.apigw.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.global.apigw.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-{{- end }}
-{{- end }}
+            name: {{ .Release.Name }}-{{ .Values.appName }}-config
 {{- end }}

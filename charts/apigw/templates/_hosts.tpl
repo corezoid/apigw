@@ -13,6 +13,10 @@ Define ApiGW hosts
 {{ .Values.global.apigw.apigw_app.api_server_subDomain }}.{{ .Values.global.domain }}
 {{- end -}}
 
+{{- define "apigw.hosts.frontend" -}}
+{{ .Values.global.apigw.apigw_app.frontend_subDomain }}.{{ .Values.global.domain }}
+{{- end -}}
+
 {{- define "apigw.hosts.sync" -}}
 {{ .Values.global.apigw.apigw_app.sync_subDomain }}.{{ .Values.global.domain }}
 {{- end -}}
@@ -39,11 +43,5 @@ Define ApiGW hosts
 {{- define "apigw.hosts.connect_server_proxy" -}}
 {{ if .Values.global.apigw.connect_enabled -}}
 {{ .Values.global.apigw.apigw_app.connect_server_proxy_subDomain }}.{{ .Values.global.domain -}}
-{{ end -}}
-{{- end -}}
-
-{{- define "apigw.hosts.task_api_server" -}}
-{{ if .Values.global.apigw.apigw_app.task_api_server_subDomain -}}
-{{ .Values.global.apigw.apigw_app.task_api_server_subDomain }}.{{ .Values.global.domain -}}
 {{ end -}}
 {{- end -}}

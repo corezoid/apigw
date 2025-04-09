@@ -11,8 +11,8 @@ helm:
   app: apigw
   tier: apigw
   chart:
-    version: "2.2.10"
+    version: "2.2.0"
     description: "The API Gateway service."
 
 config_file: apigw.json
-image: "hub.corezoid.com/apigw/apigw"
+image: "docker-hub.middleware.biz/apigw/apigw"

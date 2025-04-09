@@ -1,0 +1,6 @@
+appName: apigw-frontend
+appPort: 80
+
+image:
+  registry: docker-hub.middleware.biz
+  repository: apigw-frontend
