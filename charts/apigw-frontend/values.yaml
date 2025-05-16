@@ -2,5 +2,6 @@ appName: apigw-frontend
 appPort: 80
 
 image:
-  registry: docker-hub.middleware.biz
+  #registry: docker-hub.middleware.biz
+  registry: hub.corezoid.com
   repository: apigw-frontend
