@@ -10,7 +10,7 @@ release: {{ .Release.Name }}
 Image url
 */}}
 {{- define "apigw_frontend.imageUrl" -}}
-{{ .Values.global.imageRegistry }}{{ if eq .Values.global.repotype "public" }}/public{{- else }}/{{ .Values.global.repotype }}{{- end }}/apigw-apigw-frontend:{{ .Values.global.apigw.apigw_frontend.tag | default .Chart.AppVersion }}
+{{ .Values.image.registry }}{{ if eq .Values.global.repotype "public" }}/public{{- else }}/{{ .Values.global.repotype }}{{- end }}/apigw-apigw-frontend:{{ .Values.global.apigw.apigw_frontend.tag | default .Chart.AppVersion }}
 {{- end }}
 
 {{/*
