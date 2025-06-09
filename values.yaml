@@ -162,7 +162,5 @@ global:
       #   add_header X-Content-Type-Options nosniff;
       #   more_set_headers Referrer-Policy "no-referrer-when-downgrade" always;
       #   more_set_headers "Content-Security-Policy: default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: INSERT_DOMIANS_HERE";
-  kube:
-    affinity: {}
   apigw_app:
     tag: 1.8.1

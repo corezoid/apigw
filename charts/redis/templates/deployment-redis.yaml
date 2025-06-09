@@ -58,4 +58,12 @@ spec:
         - name: redisconfig
           configMap:
             name: {{ .Release.Name }}-{{ .Values.appName }}-config
+      {{- with .Values.global.apigw.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.apigw.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
 {{- end }}
