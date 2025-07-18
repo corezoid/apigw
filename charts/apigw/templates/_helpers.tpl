@@ -6,6 +6,12 @@ release: {{ .Release.Name | quote }}
 application: {{ .Values.appName | quote }}
 {{- end }}
 
+{{- define "account.apigw.annotations" -}}
+{{- with .Values.global.account.auth.annotations }}
+{{ toYaml . | trim | indent 4 }}
+{{- end }}
+{{- end }}
+
 {{/*
 Image url
 */}}

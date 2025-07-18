@@ -6,6 +6,12 @@ tier: {{ .Values.appName }}
 release: {{ .Release.Name }}
 {{- end }}
 
+{{- define "account.frontend.annotations" -}}
+{{- with .Values.global.account.auth.annotations }}
+{{ toYaml . | trim | indent 4 }}
+{{- end }}
+{{- end }}
+
 {{/*
 Image url
 */}}
