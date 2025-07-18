@@ -7,7 +7,7 @@ release: {{ .Release.Name }}
 {{- end }}
 
 {{- define "account.frontend.annotations" -}}
-{{- with .Values.global.account.auth.annotations }}
+{{- with .Values.global.apigw.apigw_frontend.annotations }}
 {{ toYaml . | trim | indent 4 }}
 {{- end }}
 {{- end }}

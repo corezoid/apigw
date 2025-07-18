@@ -7,7 +7,7 @@ application: {{ .Values.appName | quote }}
 {{- end }}
 
 {{- define "account.apigw.annotations" -}}
-{{- with .Values.global.account.auth.annotations }}
+{{- with .Values.global.apigw.apigw_app.annotations }}
 {{ toYaml . | trim | indent 4 }}
 {{- end }}
 {{- end }}
