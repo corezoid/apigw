@@ -5,6 +5,10 @@ metadata:
   name: {{ include "apigw.apigw_app.service.name" . }}
   labels:
     {{- include "apigw.labels" . | nindent 4 }}
+  {{- with .Values.global.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   type: {{ .Values.helm.service_type | quote }}
   selector:

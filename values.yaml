@@ -9,6 +9,8 @@ global:
   # Enable or disable Service or Pod Monitor, if not set then use serviceMonitor.enabled: false
   serviceMonitor:
     enabled: false
+  service:
+    annotations: {}
   deploymentStrategy:
     type: RollingUpdate
   product: "api-gw"
