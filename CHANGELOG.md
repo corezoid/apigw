@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Chart 2.3.10 [ApiGW 1.10.1] - 2025.10.23
+### Helm changes
+- Added service annotations support
+
+## Chart 2.3.9 [ApiGW 1.10.1] - 2024.10.21
+### Helm changes
+- Applications versions:
+    - apigw - 1.10.1
+    - redis - 0.1.8
+    - valkey - 0.1.8
+- Added pprof support to APIGW
+  - Added `enable_pprof` flag to metrics configuration (default: false)
+  - Added `pprof_port` (8050) to metrics configuration
+  - Added Grafana Pyroscope annotations for automatic pprof discovery
+
 ## Chart 2.3.8 [ApiGW 1.10.1] - 2024.10.07
 ### Helm changes
 - Applications versions:
@@ -98,7 +113,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `initContainers` in `apigw-deployment` to check redis host and port availability
 - Add `initContainers` in `apigw-deployment` to database host resolve
 - Add `initContainers` in `apigw-deployment` to check database host and port availability
-- Update `valkey` sub-chart 
+- Update `valkey` sub-chart
 
 
 ## Chart 2.3.0 [ApiGW 1.9.2] - 2024-06-11
