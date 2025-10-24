@@ -6,6 +6,8 @@ global:
   # Enable or disable Service or Pod Monitor, if not set then use serviceMonitor.enabled: false
   serviceMonitor:
     enabled: true
+  service:
+    annotations: {}
   # Dashboard configuration for deploying Grafana dashboards for ApiGW
   dashboards:
     # -- If enabled, Grafana dashboards are deployed
@@ -133,6 +135,8 @@ global:
           listen_port: 8060
         metrics:
           listen_port: 9100
+          enable_pprof: false
+          pprof_port: 8050
         connect_server:
           tunnel:
             listen_port: 8888

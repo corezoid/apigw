@@ -5,6 +5,10 @@ metadata:
   name: {{ include "apigw.apigw_app.service.name" . }}
   labels:
     {{- include "apigw.labels" . | nindent 4 }}
+  {{- with .Values.global.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   type: {{ .Values.helm.service_type | quote }}
   selector:
@@ -30,14 +34,16 @@ spec:
       port: {{ include "apigw.apigw_app.port.sync_api_server.Number" . }}
       targetPort: {{ include "apigw.apigw_app.port.sync_api_server.Number" . }}
       protocol: {{ include "apigw.apigw_app.port.sync_api_server.Protocol" . }}
-{{- if .Values.global.serviceMonitor }}
-{{- if .Values.global.serviceMonitor.enabled }}
     - name: {{ include "apigw.apigw_app.port.metrics.Name" . }}
       port: {{ include "apigw.apigw_app.port.metrics.Number" . }}
       targetPort: {{ include "apigw.apigw_app.port.metrics.Number" . }}
       protocol: {{ include "apigw.apigw_app.port.metrics.Protocol" . }}
-{{- end }}
-{{- end }}
+    {{- if and $cfg.metrics.enable_pprof $cfg.metrics.pprof_port }}
+    - name: pprof
+      port: {{ $cfg.metrics.pprof_port }}
+      targetPort: {{ $cfg.metrics.pprof_port }}
+      protocol: TCP
+    {{- end }}
 {{- if .Values.global.apigw.connect_enabled }}
     - name: {{ include "apigw.apigw_app.port.connect_server_tunnel.Name" . }}
       port: {{ include "apigw.apigw_app.port.connect_server_tunnel.Number" . }}

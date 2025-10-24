@@ -1,6 +1,6 @@
 apiVersion: v2
 name: apigw_app
-version: 2.3.8
+version: 2.3.10
 description: The API Gateway application
 type: application
 keywords:
@@ -9,7 +9,7 @@ keywords:
 home: https://simulator.company
 dependencies:
   - name: apigw
-    version: 2.2.10
+    version: 2.2.11
   - name: apigw_ingress
     version: 0.1.1
   - name: redis-apigw
