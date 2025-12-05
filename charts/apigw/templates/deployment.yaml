@@ -83,12 +83,19 @@ spec:
           args:
             - "-c"
             - |
-              until IP=$(nslookup ${APIGW_POSTGRESQL_HOST} 2>/dev/null | grep "Address: " | sed 's/.*: //g;s/ .*//g'); [ -n "$IP" ]; do
-                echo "Waiting for PgBouncer IP resolution";
-                sleep 2;
-              done
+              if ! echo ${APIGW_POSTGRESQL_HOST} | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
+                until IP=$(nslookup ${APIGW_POSTGRESQL_HOST} 2>/dev/null | grep "Address: " | sed 's/.*: //g;s/ .*//g'); [ -n "$IP" ]; do
+                  echo "Waiting for PgBouncer IP resolution";
+                  sleep 2;
+                done
+                echo "Resolved PostgreSQL (${APIGW_POSTGRESQL_HOST}) to IP: $IP"
+              else
+                echo "${APIGW_POSTGRESQL_HOST} is already an IP address, skipping resolution.";
+              fi
           env:
             {{- include "apigw.container_envs_db" . | indent 12 }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
 
         - name: init-wait-pgbouncer-port
           image: {{ .Values.global.imageInit.repository }}:{{ .Values.global.imageInit.tag }}
