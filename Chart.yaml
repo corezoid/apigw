@@ -1,6 +1,6 @@
 apiVersion: v2
 name: apigw_app
-version: 2.3.10
+version: 2.3.11
 description: The API Gateway application
 type: application
 keywords:

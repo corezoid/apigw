@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Chart 2.3.11 [ApiGW 1.10.1] - 2025.12.05
+### Helm changes
+- Applications versions:
+    - apigw - 1.10.1 (unchanged)
+    - redis - 0.1.8
+    - valkey - 0.1.8
+- Updated initContainers configuration in deployment
+
 ## Chart 2.3.10 [ApiGW 1.10.1] - 2025.10.23
 ### Helm changes
 - Added service annotations support
@@ -24,6 +32,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Helm changes
 - Applications versions:
     - apigw - 1.10.1
+    - redis - 0.1.7
+    - valkey - 0.1.7
+- Updatr deps
+- Update golang up to 1.23
+- Fix tunnel connections
+- Fix path spaces
+- Logs info
+
+
+## Chart 2.3.7 [ApiGW 1.9.4] - 2024.10.07
+### Helm changes
+- Applications versions:
+    - apigw - 1.9.4
     - redis - 0.1.7
     - valkey - 0.1.7
 - Updatr deps
