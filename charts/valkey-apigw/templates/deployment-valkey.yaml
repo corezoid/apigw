@@ -1,0 +1,73 @@
+{{- if and (hasKey .Values.global "valkey") (not (empty .Values.global.valkey)) }}
+{{- if .Values.global.valkey.use }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apigw-valkey-deployment
+  labels:
+    {{- include "apigw.valkey.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "apigw.valkey.labels" . | nindent 6 }}
+  replicas: 1
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap-valkey.yaml") . | sha256sum }}
+      labels:
+        {{- include "apigw.valkey.labels" . | nindent 8 }}
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range $pullSecret := .Values.global.imagePullSecrets }}
+        - name: {{ $pullSecret }}
+      {{- end }}
+      {{- end }}
+      containers:
+      - name: master
+        image: "{{ .Values.image.registry }}{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 50m
+            memory: 100Mi
+        readinessProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - "valkey-cli -h localhost ping"
+          initialDelaySeconds: 15
+          timeoutSeconds: 5
+        livenessProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - "valkey-cli -h localhost ping"
+          initialDelaySeconds: 20
+          periodSeconds: 3
+        ports:
+        - name: app
+          containerPort: {{ .Values.appPort }}
+          protocol : TCP
+        volumeMounts:
+          - name: valkeyconfig
+            mountPath: /usr/local/etc/valkey
+      volumes:
+        - name: valkeyconfig
+          configMap:
+            name: apigw-valkey-config
+      {{- with .Values.global.apigw.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.apigw.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
+{{- end }}

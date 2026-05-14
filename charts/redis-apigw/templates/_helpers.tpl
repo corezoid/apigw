@@ -1,9 +1,9 @@
 {{/*
 Common labels
 */}}
-{{- define "redis.labels" -}}
+{{- define "apigw.redis.labels" -}}
 release: {{ .Release.Name }}
-application: {{ .Values.appName }}
+application: apigw-redis
 role: master
 {{- end }}
 

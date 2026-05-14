@@ -1,12 +1,14 @@
+{{- if and (hasKey .Values.global "valkey") (not (empty .Values.global.valkey)) }}
+{{- if not .Values.global.valkey.use }}
+{{- if eq .Values.global.redis.internal true }}
 {{- if .Values.global.networkPolicy }}
 {{- if .Values.global.networkPolicy.enabled }}
----
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: {{ .Release.Name }}-{{ .Values.appName }}-policy
+  name: apigw-redis-policy
   labels:
-    {{- include "redis.labels" . | nindent 4 }}
+    {{- include "apigw.redis.labels" . | nindent 4 }}
 spec:
   podSelector:
     matchLabels:
@@ -22,5 +24,8 @@ spec:
       ports:
         - protocol: TCP
           port: {{ .Values.appPort }}
+{{- end }}
+{{- end }}
+{{- end }}
 {{- end }}
 {{- end }}

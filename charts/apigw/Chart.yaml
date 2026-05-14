@@ -1,5 +1,9 @@
 apiVersion: v2
 name: apigw
-version: 2.2.4
-appVersion: 1.8.1
+version: 2.2.12
+appVersion: 1.11.0
 description: The API Gateway service.
+
+# Added pprof support in version 2.2.11
+# To enable pprof, set global.apigw.apigw_app.config.metrics.enable_pprof to true
+# Default pprof port is 8050
